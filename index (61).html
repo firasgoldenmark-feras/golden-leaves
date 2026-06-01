@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="htmlRoot">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#fbbf24">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="نظام الإجازات">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-192.svg">
+<title>نظام الإجازات — الأثر الذهبي</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{
+  --bg:#030712;--bg2:#0f172a;--bg3:#111827;--bg4:#1f2937;--bg5:#374151;
+  --text:#f9fafb;--text2:#d1d5db;--text3:#9ca3af;--text4:#6b7280;
+  --border:#1f2937;--border2:#374151;--gold:#fbbf24;
+}
+html.light{
+  --bg:#f8fafc;--bg2:#f1f5f9;--bg3:#ffffff;--bg4:#e2e8f0;--bg5:#cbd5e1;
+  --text:#0f172a;--text2:#1e293b;--text3:#475569;--text4:#64748b;
+  --border:#e2e8f0;--border2:#cbd5e1;
+}
+*{box-sizing:border-box;margin:0;padding:0;transition:background-color 0.2s,color 0.2s,border-color 0.2s}
+body{font-family:Tahoma,Arial,sans-serif;direction:rtl;background:var(--bg);color:var(--text);min-height:100vh}
+input,select,textarea{background:var(--bg4);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;color:var(--text);font-size:14px;font-family:Tahoma,Arial,sans-serif;width:100%;outline:none}
+input:focus,select:focus{border-color:var(--gold)}
+button{cursor:pointer;font-family:Tahoma,Arial,sans-serif;border:none;border-radius:8px;font-size:14px}
+.btn-gold{background:#fbbf24;color:#111827;font-weight:bold}
+.btn-gold:hover{background:#f59e0b}
+.btn-green{background:#065f46;color:#6ee7b7;font-weight:bold}
+.btn-red{background:#7f1d1d;color:#fca5a5;font-weight:bold}
+.btn-gray{background:var(--bg5);color:var(--text2)}
+.card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:20px}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:bold;border:1px solid}
+.by{color:#fbbf24;background:rgba(251,191,36,0.1);border-color:rgba(251,191,36,0.3)}
+.bg{color:#34d399;background:rgba(52,211,153,0.1);border-color:rgba(52,211,153,0.3)}
+.br{color:#f87171;background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3)}
+.bb{color:#60a5fa;background:rgba(96,165,250,0.1);border-color:rgba(96,165,250,0.3)}
+.bp{color:#c084fc;background:rgba(192,132,252,0.1);border-color:rgba(192,132,252,0.3)}
+#toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:10px;font-weight:bold;font-size:14px;z-index:999;display:none}
+#loginPage{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1rem}
+#mainApp{display:none;flex-direction:row;min-height:100vh}
+#sidebar{width:220px;background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+#content{flex:1;overflow-y:auto;padding:24px;max-width:900px;margin:0 auto;width:100%}
+.nb{width:100%;text-align:right;background:none;border:none;padding:10px 16px;color:var(--text3);border-radius:8px;display:flex;align-items:center;gap:10px;font-size:13px}
+.nb:hover{background:var(--bg4);color:var(--text)}
+.nb.active{background:#fbbf24;color:#111827;font-weight:bold}
+.sc{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center}
+.bc{background:var(--bg4);border-radius:10px;padding:14px;text-align:center;border:1px solid var(--border2)}
+table{width:100%;border-collapse:collapse}
+th{background:var(--bg2);color:#fbbf24;padding:10px 12px;font-size:12px;text-align:right;font-weight:bold}
+td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px;color:var(--text2)}
+.mb{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:50;display:none;align-items:center;justify-content:center;padding:1rem}
+.mx{background:var(--bg3);border:1px solid var(--border2);border-radius:14px;padding:24px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto}
+.pg{display:none}.pg.active{display:block}
+.lbl{display:block;font-size:12px;color:var(--text3);margin-bottom:6px}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ltb{padding:8px 12px;border-radius:8px;border:1px solid var(--border2);background:var(--bg4);color:var(--text2);font-size:13px;cursor:pointer}
+.ltb.sel{background:#fbbf24;color:#111827;border-color:#fbbf24;font-weight:bold}
+.rc{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:12px}
+.notif-badge{position:absolute;top:4px;right:4px;background:#ef4444;color:white;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:bold;display:flex;align-items:center;justify-content:center}
+.nb-wrap{position:relative;display:block}
+.stat-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center}
+.cal-day{background:var(--bg4);border-radius:8px;padding:8px;min-height:80px;font-size:11px}
+.cal-day.today{border:2px solid #fbbf24}
+.cal-event{background:rgba(251,191,36,0.15);border-right:3px solid #fbbf24;padding:3px 6px;border-radius:4px;margin-top:4px;font-size:11px;color:#fbbf24;cursor:pointer}
+.cal-event.sick{background:rgba(96,165,250,0.15);border-color:#60a5fa;color:#60a5fa}
+.cal-event.unpaid{background:rgba(251,146,60,0.15);border-color:#fb923c;color:#fb923c}
+.notif-item{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:start;gap:10px;cursor:pointer}
+.notif-item.unread{background:rgba(251,191,36,0.05)}
+.notif-item:hover{background:var(--bg4)}
+/* الوضع الإنجليزي */
+html.en-mode{direction:ltr}
+html.en-mode #sidebar{border-left:none;border-right:1px solid var(--border)}
+html.en-mode .nb{text-align:left}
+/* شريط الأدوات العلوي */
+#topBar{position:fixed;top:0;left:0;right:0;height:44px;background:var(--bg2);border-bottom:1px solid var(--border);display:none;align-items:center;justify-content:flex-end;padding:0 16px;gap:8px;z-index:40}
+#mainApp.active #topBar,body.loggedin #topBar{display:flex}
+.tool-btn{background:var(--bg4);border:1px solid var(--border2);color:var(--text3);padding:5px 10px;border-radius:6px;font-size:12px;cursor:pointer;font-family:Tahoma,Arial,sans-serif}
+.tool-btn:hover{background:var(--bg5);color:var(--text)}
+@media(max-width:640px){
+  #sidebar{width:180px}
+  #content{padding:16px}
+}
+@media print{
+  #sidebar,#topBar,#toast{display:none!important}
+  #content{padding:0;max-width:100%}
+  .no-print{display:none!important}
+  body{background:white;color:black}
+}
+</style>
+<body>
+<div id="toast"></div>
+
+<!-- بانر التثبيت التلقائي -->
+<div id="installBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;padding:16px;background:linear-gradient(135deg,#0f172a,#1e3a5f);border-top:2px solid #fbbf24;box-shadow:0 -4px 24px rgba(0,0,0,0.5)">
+  <div style="max-width:500px;margin:0 auto;display:flex;align-items:center;gap:14px">
+    <img src="./icon-192.svg" style="width:52px;height:52px;border-radius:12px;flex-shrink:0" onerror="this.style.display='none'" />
+    <div style="flex:1">
+      <div style="color:#fbbf24;font-weight:bold;font-size:14px;margin-bottom:2px">نظام الإجازات — الأثر الذهبي</div>
+      <div style="color:#9ca3af;font-size:12px">ثبّت التطبيق على شاشتك الرئيسية للوصول السريع</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-shrink:0">
+      <button id="installNowBtn" style="background:#fbbf24;color:#111827;font-weight:bold;padding:10px 18px;border-radius:8px;border:none;cursor:pointer;font-family:Tahoma,Arial,sans-serif;font-size:13px">📲 تثبيت</button>
+      <button id="installLaterBtn" style="background:#374151;color:#9ca3af;padding:10px 12px;border-radius:8px;border:none;cursor:pointer;font-size:18px">✕</button>
+    </div>
+  </div>
+</div>
+<div id="topBar">
+  <button class="tool-btn" id="langBtn" title="تغيير اللغة">🌍 EN</button>
+  <button class="tool-btn" id="themeBtn" title="تغيير الوضع">🌙 ليلي</button>
+  <button class="tool-btn" id="installBtn" style="display:none;color:#34d399;border-color:rgba(52,211,153,0.3)">📱 تثبيت التطبيق</button>
+</div>
+
+<div id="loginPage">
+  <div style="width:100%;max-width:380px">
+    <div style="text-align:center;margin-bottom:2rem">
+      <div style="width:68px;height:68px;border-radius:50%;background:rgba(251,191,36,0.1);border:2px solid rgba(251,191,36,0.3);display:inline-flex;align-items:center;justify-content:center;font-size:1.8rem;margin-bottom:12px">⭐</div>
+      <h1 style="color:#fbbf24;font-size:1.8rem;font-weight:bold;margin-bottom:2px;letter-spacing:1px">Goldenmark</h1>
+      <p style="color:#d1d5db;font-size:0.95rem;margin-bottom:2px">نظام الإجازات الشامل</p>
+      <p style="color:#6b7280;font-size:0.75rem">شركة الأثر الذهبي © 2026</p>
+    </div>
+    <div class="card">
+      <div style="margin-bottom:14px">
+        <label class="lbl">كود الموظف</label>
+        <input id="lCode" placeholder="مثال: CEO001" />
+      </div>
+      <div style="margin-bottom:16px">
+        <label class="lbl">كلمة المرور</label>
+        <input id="lPwd" type="password" placeholder="••••••••" />
+      </div>
+      <div id="lErr" style="display:none;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:10px;color:#f87171;font-size:13px;text-align:center;margin-bottom:12px"></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        <input type="checkbox" id="rememberMe" style="width:16px;height:16px;accent-color:#fbbf24;cursor:pointer" />
+        <label for="rememberMe" style="font-size:13px;color:#9ca3af;cursor:pointer">تذكرني على هذا الجهاز</label>
+      </div>
+      <button id="loginBtn" class="btn-gold" style="width:100%;padding:13px;font-size:16px">دخول ←</button>
+      <div id="savedSessionBox" style="display:none;margin-top:14px;background:rgba(52,211,153,0.05);border:1px solid rgba(52,211,153,0.2);border-radius:10px;padding:12px">
+        <div style="font-size:12px;color:#6b7280;margin-bottom:8px">🔐 جلسة محفوظة لـ</div>
+        <div style="color:#34d399;font-weight:bold;font-size:15px;margin-bottom:10px" id="savedName">—</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <button id="resumeBtn" style="background:#065f46;color:#6ee7b7;font-weight:bold;padding:10px;border-radius:8px;border:none;cursor:pointer;font-family:Tahoma,Arial,sans-serif;font-size:13px">⚡ دخول سريع</button>
+          <button id="clearSessionBtn" style="background:#374151;color:#9ca3af;padding:10px;border-radius:8px;border:none;cursor:pointer;font-family:Tahoma,Arial,sans-serif;font-size:12px">🗑️ مسح</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="mainApp">
+  <div id="sidebar">
+    <div style="padding:14px;border-bottom:1px solid #1e3a5f">
+      <div style="color:#fbbf24;font-weight:bold;font-size:14px">⭐ Goldenmark</div>
+      <div style="color:#9ca3af;font-size:10px">نظام الإجازات الشامل</div>
+    </div>
+    <div style="margin:10px 8px;background:rgba(251,191,36,0.05);border:1px solid rgba(251,191,36,0.15);border-radius:8px;padding:10px">
+      <div style="font-weight:bold;color:#fbbf24;font-size:13px" id="sbName">-</div>
+      <div style="color:#6b7280;font-size:11px" id="sbRole">-</div>
+    </div>
+    <nav style="flex:1;padding:8px" id="navMenu"></nav>
+    <div style="padding:8px;border-top:1px solid #1e3a5f">
+      <div class="nb-wrap">
+        <button class="nb" id="notifBtn" style="width:100%">🔔 <span>الإشعارات</span><span id="notifBadge" style="display:none;background:#ef4444;color:white;border-radius:50%;padding:1px 6px;font-size:10px;font-weight:bold;margin-right:auto"></span></button>
+      </div>
+      <button class="nb" id="logoutBtn" style="color:#f87171">🚪 <span>تسجيل الخروج</span></button>
+    </div>
+  </div>
+  <div id="content">
+    <div class="pg active" id="pgDashboard">
+      <h2 style="color:#fbbf24;margin-bottom:4px;font-size:1.3rem">لوحة التحكم</h2>
+      <p style="color:#6b7280;font-size:13px;margin-bottom:20px" id="dashWelcome">مرحباً</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:20px" id="dashStats"></div>
+      <div class="card" id="dashBalance" style="margin-bottom:16px;display:none">
+        <h3 style="color:#fbbf24;font-size:14px;margin-bottom:14px">💰 رصيد إجازاتي</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:10px" id="balGrid"></div>
+      </div>
+      <div class="card" id="dashRecent" style="display:none">
+        <h3 style="color:#fbbf24;font-size:14px;margin-bottom:14px">📋 آخر طلباتي</h3>
+        <div id="recentList"></div>
+      </div>
+    </div>
+    <div class="pg" id="pgNewReq">
+      <h2 style="color:#fbbf24;margin-bottom:4px;font-size:1.3rem">طلب إجازة جديد</h2>
+      <p style="color:#6b7280;font-size:13px;margin-bottom:20px">سيصل طلبك للمدير المختص</p>
+      <div class="card" style="max-width:500px">
+        <div style="margin-bottom:16px">
+          <label class="lbl">نوع الإجازة *</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="leaveTypeBtns"></div>
+        </div>
+        <div id="dateSection">
+          <div class="r2" style="margin-bottom:14px">
+            <div><label class="lbl">تاريخ البداية *</label><input type="date" id="reqStart" /></div>
+            <div><label class="lbl">تاريخ الانتهاء *</label><input type="date" id="reqEnd" /></div>
+          </div>
+        </div>
+        <div id="timeSection" style="display:none">
+          <div style="margin-bottom:14px"><label class="lbl">تاريخ الاستئذان</label><input type="date" id="reqDepDate" /></div>
+          <div class="r2" style="margin-bottom:14px">
+            <div><label class="lbl">من الساعة *</label><input type="time" id="reqFrom" value="08:00" /></div>
+            <div><label class="lbl">حتى الساعة *</label><input type="time" id="reqTo" value="10:00" /></div>
+          </div>
+        </div>
+        <div id="durInfo" style="text-align:center;color:#fbbf24;font-size:13px;background:rgba(251,191,36,0.08);padding:8px;border-radius:8px;margin-bottom:14px;display:none"></div>
+        <div style="margin-bottom:16px"><label class="lbl">السبب (اختياري)</label><textarea id="reqReason" rows="3" style="resize:none"></textarea></div>
+        <button id="submitReqBtn" class="btn-gold" style="width:100%;padding:13px;font-size:15px">📤 إرسال الطلب</button>
+      </div>
+    </div>
+    <div class="pg" id="pgMyReqs">
+      <h2 style="color:#fbbf24;margin-bottom:14px;font-size:1.3rem">طلباتي</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px" id="myReqFilters"></div>
+      <div id="myReqList"></div>
+    </div>
+    <div class="pg" id="pgTeam">
+      <h2 style="color:#fbbf24;margin-bottom:4px;font-size:1.3rem">طلبات الفريق</h2>
+      <p style="color:#6b7280;font-size:13px;margin-bottom:20px">الطلبات التي تحتاج موافقتك المبدئية</p>
+      <div id="teamList"></div>
+    </div>
+    <div class="pg" id="pgAllReqs">
+      <h2 style="color:#fbbf24;margin-bottom:14px;font-size:1.3rem" id="allReqTitle">جميع الطلبات</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px" id="allReqFilters"></div>
+      <div id="allReqList"></div>
+    </div>
+    <div class="pg" id="pgEmps">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+        <div><h2 style="color:#fbbf24;font-size:1.3rem">إدارة الموظفين</h2><p style="color:#6b7280;font-size:13px" id="empCount">-</p></div>
+        <button id="addEmpBtn" class="btn-gold" style="padding:10px 18px">➕ إضافة موظف</button>
+      </div>
+      <div style="background:rgba(251,191,36,0.05);border:1px solid rgba(251,191,36,0.2);border-radius:10px;padding:12px;margin-bottom:16px;font-size:12px;color:#fbbf24">
+        ⚠️ <strong>ملاحظة:</strong> لا يمكن حذف الموظفين نهائياً — يمكن فقط تعطيل الحساب للحفاظ على البيانات والسجلات.
+      </div>
+      <div style="overflow-x:auto;border-radius:12px;border:1px solid #1f2937">
+        <table><thead><tr><th>الكود</th><th>الاسم</th><th>القسم</th><th>الدور</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+        <tbody id="empBody"></tbody></table>
+      </div>
+    </div>
+    <div class="pg" id="pgBalance">
+      <h2 style="color:#fbbf24;margin-bottom:4px;font-size:1.3rem">إدارة الأرصدة</h2>
+      <p style="color:#6b7280;font-size:13px;margin-bottom:20px">صلاحية حصرية للمدير العام</p>
+      <div id="balList"></div>
+    </div>
+    <div class="pg" id="pgReports">
+      <h2 style="color:#fbbf24;margin-bottom:16px;font-size:1.3rem">التقارير</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-bottom:20px">
+        <div class="card">
+          <h3 style="color:#fbbf24;font-size:14px;margin-bottom:8px">📊 تقرير الطلبات</h3>
+          <div style="margin-bottom:10px"><select id="rptEmp"><option value="all">جميع الموظفين</option></select></div>
+          <div class="r2" style="margin-bottom:12px">
+            <select id="rptType"><option value="all">كل الأنواع</option></select>
+            <select id="rptStatus"><option value="all">كل الحالات</option></select>
+          </div>
+          <div style="text-align:center;color:#6b7280;font-size:13px;margin-bottom:10px" id="rptCount">-</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <button id="expReqXls" class="btn-green" style="padding:10px">📊 Excel</button>
+            <button id="expReqPdf" style="background:#7c3aed;color:#ede9fe;font-weight:bold;padding:10px;border-radius:8px;border:none;cursor:pointer">📄 PDF</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3 style="color:#fbbf24;font-size:14px;margin-bottom:8px">💰 تقرير الأرصدة</h3>
+          <div style="background:#0f172a;border-radius:10px;padding:16px;text-align:center;margin-bottom:14px">
+            <div style="font-size:28px;font-weight:bold;color:#fbbf24" id="rptEmpCount">-</div>
+            <div style="color:#6b7280;font-size:12px">موظف نشط</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <button id="expBalXls" style="background:#1e3a5f;color:#60a5fa;font-weight:bold;padding:10px;border-radius:8px;border:none;cursor:pointer">📊 Excel</button>
+            <button id="expBalPdf" style="background:#7c3aed;color:#ede9fe;font-weight:bold;padding:10px;border-radius:8px;border:none;cursor:pointer">📄 PDF</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3 style="color:#fbbf24;font-size:14px;margin-bottom:8px">🛡️ نسخة احتياطية كاملة</h3>
+          <p style="color:#6b7280;font-size:12px;margin-bottom:14px">تصدير جميع بيانات النظام (موظفون + طلبات) في ملف Excel واحد</p>
+          <div style="background:#0f172a;border-radius:10px;padding:12px;text-align:center;margin-bottom:14px">
+            <div style="font-size:13px;color:#34d399">✅ يُنصح بالتصدير شهرياً</div>
+            <div style="font-size:11px;color:#6b7280;margin-top:4px">Supabase يحتفظ بنسخ لآخر 7 أيام فقط</div>
+          </div>
+          <button id="expBackup" style="background:linear-gradient(135deg,#065f46,#1e3a5f);color:#34d399;font-weight:bold;padding:12px;border-radius:8px;border:1px solid rgba(52,211,153,0.3);cursor:pointer;width:100%;font-family:Tahoma,Arial,sans-serif;font-size:13px">🛡️ تصدير نسخة احتياطية كاملة</button>
+        </div>
+        <div class="card">
+          <h3 style="color:#fbbf24;font-size:14px;margin-bottom:8px">📊 التقرير الشهري التلقائي</h3>
+          <p style="color:#6b7280;font-size:12px;margin-bottom:14px">تقرير شامل لشهر محدد — جاهز للطباعة والإرسال</p>
+          <div style="margin-bottom:10px">
+            <label class="lbl">اختر الشهر</label>
+            <input type="month" id="rptMonth" style="max-width:200px" />
+          </div>
+          <button id="expMonthly" style="background:linear-gradient(135deg,#7c3aed,#1e3a5f);color:#c084fc;font-weight:bold;padding:12px;border-radius:8px;border:1px solid rgba(192,132,252,0.3);cursor:pointer;width:100%;font-family:Tahoma,Arial,sans-serif;font-size:13px">📊 توليد التقرير الشهري</button>
+        </div>
+      </div>
+      <div class="card" id="rptStats"></div>
+    </div>
+    <div class="pg" id="pgSettings">
+      <h2 style="color:#fbbf24;margin-bottom:20px;font-size:1.3rem">⚙️ إعدادات حسابي</h2>
+      <div class="card" style="max-width:440px">
+        <!-- بطاقة هوية المستخدم -->
+        <div style="background:rgba(251,191,36,0.05);border:1px solid rgba(251,191,36,0.15);border-radius:10px;padding:16px;text-align:center;margin-bottom:20px">
+          <div style="font-size:2rem;margin-bottom:6px">⭐</div>
+          <div style="color:#fbbf24;font-weight:bold;font-size:16px" id="stName">-</div>
+          <div style="color:#6b7280;font-size:12px" id="stRole">-</div>
+        </div>
+
+        <!-- حقول CEO فقط: تعديل الاسم والكود -->
+        <div id="stCeoFields" style="display:none">
+          <div style="background:rgba(251,191,36,0.05);border:1px solid rgba(251,191,36,0.2);border-radius:8px;padding:10px;margin-bottom:14px;font-size:12px;color:#fbbf24">
+            ⭐ صلاحية المدير العام — تعديل الاسم والكود
+          </div>
+          <div style="margin-bottom:14px"><label class="lbl">الاسم الكامل</label><input id="stFName" /></div>
+          <div style="margin-bottom:14px"><label class="lbl">كود الموظف (اليوزر)</label><input id="stCode" /></div>
+        </div>
+
+        <!-- حقول عرض فقط للموظفين العاديين -->
+        <div id="stEmpFields" style="display:none">
+          <div style="background:rgba(96,165,250,0.05);border:1px solid rgba(96,165,250,0.2);border-radius:8px;padding:10px;margin-bottom:14px">
+            <div style="font-size:12px;color:#93c5fd;margin-bottom:8px">👤 بياناتك الشخصية</div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+              <span style="color:#6b7280;font-size:12px">الاسم الكامل</span>
+              <span style="color:#f9fafb;font-size:13px;font-weight:bold" id="stNameDisplay">-</span>
+            </div>
+            <div style="display:flex;justify-content:space-between">
+              <span style="color:#6b7280;font-size:12px">كود الدخول</span>
+              <span style="color:#fbbf24;font-size:13px;font-weight:bold;font-family:monospace" id="stCodeDisplay">-</span>
+            </div>
+          </div>
+          <div style="background:rgba(248,113,113,0.05);border:1px solid rgba(248,113,113,0.15);border-radius:8px;padding:10px;margin-bottom:16px;font-size:11px;color:#f87171">
+            🔒 لتغيير اسمك أو كودك — تواصل مع المدير العام
+          </div>
+        </div>
+
+        <!-- تغيير كلمة المرور — متاح للجميع -->
+        <div style="border-top:1px solid #1f2937;padding-top:16px;margin-bottom:16px">
+          <h4 style="color:#fbbf24;font-size:13px;margin-bottom:4px">🔑 تغيير كلمة المرور</h4>
+          <p style="color:#6b7280;font-size:11px;margin-bottom:12px">متاح لجميع الموظفين — كلمة المرور الحالية مطلوبة</p>
+          <div style="margin-bottom:10px"><label class="lbl">كلمة المرور الحالية *</label><input type="password" id="stOldPwd" placeholder="أدخل كلمة مرورك الحالية" /></div>
+          <div style="margin-bottom:10px"><label class="lbl">كلمة المرور الجديدة</label><input type="password" id="stNewPwd" placeholder="6 أحرف على الأقل" /></div>
+          <div style="margin-bottom:10px"><label class="lbl">تأكيد كلمة المرور الجديدة</label><input type="password" id="stConPwd" placeholder="أعد كتابة كلمة المرور الجديدة" /></div>
+        </div>
+        <button id="saveStBtn" class="btn-gold" style="width:100%;padding:13px">💾 حفظ التغييرات</button>
+      </div>
+    </div>
+
+    <!-- صفحة الإشعارات -->
+    <div class="pg" id="pgNotifs">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+        <div><h2 style="color:#fbbf24;font-size:1.3rem">🔔 الإشعارات</h2><p style="color:#6b7280;font-size:13px" id="notifCount">-</p></div>
+        <button id="markAllRead" class="btn-gray" style="padding:8px 16px;font-size:12px">✓ تعليم الكل كمقروء</button>
+      </div>
+      <div class="card" id="notifList"><div style="text-align:center;color:#6b7280;padding:40px">⏳</div></div>
+    </div>
+
+    <!-- لوحة الإحصائيات المتقدمة -->
+    <div class="pg" id="pgStats">
+      <h2 style="color:#fbbf24;margin-bottom:4px;font-size:1.3rem">📈 الإحصائيات المتقدمة</h2>
+      <p style="color:#6b7280;font-size:13px;margin-bottom:20px">نظرة شاملة على أداء الشركة</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px" id="statsCards"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+        <div class="card"><h3 style="color:#fbbf24;font-size:13px;margin-bottom:14px">📊 توزيع أنواع الإجازات</h3><div id="statsTypes"></div></div>
+        <div class="card"><h3 style="color:#fbbf24;font-size:13px;margin-bottom:14px">🏢 إجازات حسب القسم</h3><div id="statsDepts"></div></div>
+      </div>
+      <div class="card"><h3 style="color:#fbbf24;font-size:13px;margin-bottom:14px">⚠️ موظفون رصيدهم منخفض (أقل من 3 أيام)</h3><div id="statsLowBal"></div></div>
+    </div>
+
+    <!-- تقويم إجازات الفريق -->
+    <div class="pg" id="pgCalendar">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+        <div><h2 style="color:#fbbf24;font-size:1.3rem">📅 تقويم الإجازات</h2></div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button id="calPrev" class="btn-gray" style="padding:6px 12px">◀</button>
+          <span id="calTitle" style="color:#fbbf24;font-weight:bold;font-size:14px;min-width:140px;text-align:center"></span>
+          <button id="calNext" class="btn-gray" style="padding:6px 12px">▶</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+        <span style="font-size:11px;padding:3px 10px;border-radius:10px;background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3)">■ سنوية</span>
+        <span style="font-size:11px;padding:3px 10px;border-radius:10px;background:rgba(96,165,250,0.15);color:#60a5fa;border:1px solid rgba(96,165,250,0.3)">■ مرضية</span>
+        <span style="font-size:11px;padding:3px 10px;border-radius:10px;background:rgba(251,146,60,0.15);color:#fb923c;border:1px solid rgba(251,146,60,0.3)">■ أخرى</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:8px">
+        <div style="text-align:center;color:#6b7280;font-size:11px;padding:4px">أحد</div>
+        <div style="text-align:center;color:#6b7280;font-size:11px;padding:4px">اثنين</div>
+        <div style="text-align:center;color:#6b7280;font-size:11px;padding:4px">ثلاثاء</div>
+        <div style="text-align:center;color:#6b7280;font-size:11px;padding:4px">أربعاء</div>
+        <div style="text-align:center;color:#6b7280;font-size:11px;padding:4px">خميس</div>
+        <div style="text-align:center;color:#6b7280;font-size:11px;padding:4px">جمعة</div>
+        <div style="text-align:center;color:#6b7280;font-size:11px;padding:4px">سبت</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px" id="calGrid"></div>
+    </div>
+
+    <!-- سجل الموظف -->
+    <div class="pg" id="pgHistory">
+      <h2 style="color:#fbbf24;margin-bottom:16px;font-size:1.3rem">📜 سجل الموظفين</h2>
+      <div style="margin-bottom:16px"><select id="histEmpSel" style="max-width:300px"><option value="">— اختر موظفاً —</option></select></div>
+      <div id="histContent"></div>
+    </div>
+  </div>
+</div>
+
+<div class="mb" id="empModal">
+  <div class="mx">
+    <h3 style="color:#fbbf24;margin-bottom:16px;font-size:15px" id="empModalTitle">➕ إضافة موظف</h3>
+    <div class="r2" style="margin-bottom:12px">
+      <div><label class="lbl">كود الموظف *</label><input id="mCode" /></div>
+      <div><label class="lbl">الاسم الكامل *</label><input id="mName" /></div>
+    </div>
+    <div class="r2" style="margin-bottom:12px">
+      <div><label class="lbl">القسم</label><input id="mDept" /></div>
+      <div><label class="lbl">المسمى الوظيفي</label><input id="mTitle" /></div>
+    </div>
+    <div class="r2" style="margin-bottom:12px">
+      <div><label class="lbl">الدور</label>
+        <select id="mRole"><option value="employee">موظف</option><option value="manager">مدير قسم</option><option value="hr">موارد بشرية</option><option value="admin">مشرف</option></select>
+      </div>
+      <div><label class="lbl">المدير المباشر</label><select id="mMgr"><option value="">— بدون —</option></select></div>
+    </div>
+    <div style="margin-bottom:12px"><label class="lbl">كلمة المرور <span style="color:#34d399;font-size:11px">(فارغة = تلقائية عند الإضافة الجديدة)</span></label><input type="password" id="mPwd" placeholder="اتركها فارغة لكلمة مرور تلقائية" /></div>
+    <div style="margin-bottom:12px"><label class="lbl">تاريخ التعيين</label><input type="date" id="mHire" /></div>
+    <div style="margin-bottom:16px">
+      <label class="lbl" style="margin-bottom:10px">أرصدة الإجازات</label>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+        <div><label class="lbl">سنوية</label><input type="number" id="mAnn" min="0" value="0" /></div>
+        <div><label class="lbl">مرضية</label><input type="number" id="mSick" min="0" value="0" /></div>
+        <div><label class="lbl">أمومة</label><input type="number" id="mMat" min="0" value="0" /></div>
+        <div><label class="lbl">بدون راتب</label><input type="number" id="mUnp" min="0" value="0" /></div>
+        <div><label class="lbl">استئذان(د)</label><input type="number" id="mDep" min="0" value="0" /></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button id="saveEmpBtn" class="btn-gold" style="flex:1;padding:11px">💾 حفظ</button>
+      <button id="cancelEmpBtn" class="btn-gray" style="flex:1;padding:11px">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const URL_ = 'https://rxvmdobbfnthsuqhojxk.supabase.co';
+const KEY_ = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ4dm1kb2JiZm50aHN1cWhvanhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1ODg5MDcsImV4cCI6MjA4OTE2NDkwN30.dAA3rnL423rQq4xqn7xwaYs6ih3D2qufjFhDyjkXXSc';
+const H = {'apikey':KEY_,'Authorization':'Bearer '+KEY_,'Content-Type':'application/json','Prefer':'return=representation'};
+
+async function hp(p){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(p));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('')}
+async function dbg(t,q=''){const r=await fetch(URL_+'/rest/v1/'+t+'?'+q,{headers:H});if(!r.ok)throw new Error(await r.text());return r.json()}
+async function dbp(t,b){const r=await fetch(URL_+'/rest/v1/'+t,{method:'POST',headers:H,body:JSON.stringify(b)});if(!r.ok)throw new Error(await r.text());return r.json()}
+async function dbu(t,q,b){const r=await fetch(URL_+'/rest/v1/'+t+'?'+q,{method:'PATCH',headers:H,body:JSON.stringify(b)});if(!r.ok)throw new Error(await r.text());return r.json()}
+
+const LT={annual:'إجازة سنوية',sick:'إجازة مرضية',maternity:'إجازة أمومة',unpaid:'بدون راتب',departure:'استئذان'};
+const ST={pending:{l:'معلق',c:'by'},manager_approved:{l:'موافقة المدير',c:'bb'},hr_approved:{l:'موافقة HR',c:'bp'},approved:{l:'مقبول',c:'bg'},rejected:{l:'مرفوض',c:'br'}};
+const RL={employee:'موظف',manager:'مدير قسم',hr:'موارد بشرية',admin:'مشرف',ceo:'مدير عام'};
+
+let CU=null,EE=null,AE=[],ARD=[],ARF='all',MRF='all',SLT='annual',CAL_DATE=new Date(),NOTIF_POLL=null,LAST_NOTIF_COUNT=0;
+
+const NAV=[
+  {id:'pgDashboard',l:'لوحة التحكم',i:'📊',r:['employee','manager','hr','admin','ceo']},
+  {id:'pgNewReq',l:'طلب إجازة جديد',i:'📝',r:['employee','manager','hr','admin']},
+  {id:'pgMyReqs',l:'طلباتي',i:'📋',r:['employee','manager','hr','admin']},
+  {id:'pgTeam',l:'طلبات الفريق',i:'👥',r:['manager']},
+  {id:'pgAllReqs',l:'جميع الطلبات',i:'📑',r:['hr','ceo']},
+  {id:'pgCalendar',l:'تقويم الإجازات',i:'📅',r:['manager','hr','ceo']},
+  {id:'pgStats',l:'الإحصائيات',i:'📈',r:['ceo']},
+  {id:'pgHistory',l:'سجل الموظفين',i:'📜',r:['hr','ceo']},
+  {id:'pgEmps',l:'إدارة الموظفين',i:'👤',r:['ceo']},
+  {id:'pgBalance',l:'إدارة الأرصدة',i:'💰',r:['ceo']},
+  {id:'pgReports',l:'التقارير',i:'📊',r:['hr','ceo']},
+  {id:'pgSettings',l:'إعدادات حسابي',i:'⚙️',r:['employee','manager','hr','admin','ceo']},
+];
+
+function toast(m,ok=true){const t=document.getElementById('toast');t.textContent=m;t.style.cssText='position:fixed;top:16px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:10px;font-weight:bold;font-size:14px;z-index:999;background:'+(ok?'#065f46':'#7f1d1d')+';color:'+(ok?'#6ee7b7':'#fca5a5');t.style.display='block';setTimeout(()=>t.style.display='none',3000)}
+function gv(id){return document.getElementById(id)?.value||''}
+function sv(id,v){const e=document.getElementById(id);if(e)e.value=v}
+function st(id,v){const e=document.getElementById(id);if(e)e.textContent=v}
+function sd(id,v){const e=document.getElementById(id);if(e)e.style.display=v}
+
+// LOGIN
+// ======= إدارة الجلسة المحفوظة =======
+const SESSION_KEY='goldenmark_session_v1';
+function saveSession(emp){
+  try{
+    const data={id:emp.id,employee_code:emp.employee_code,full_name:emp.full_name,role:emp.role,
+      department:emp.department||'',job_title:emp.job_title||'',
+      annual_leave_balance:emp.annual_leave_balance||0,sick_leave_balance:emp.sick_leave_balance||0,
+      maternity_leave_balance:emp.maternity_leave_balance||0,unpaid_leave_balance:emp.unpaid_leave_balance||0,
+      departure_balance_minutes:emp.departure_balance_minutes||0,manager_id:emp.manager_id||null,
+      phone:emp.phone||'',ts:Date.now()};
+    localStorage.setItem(SESSION_KEY,JSON.stringify(data));
+  }catch(e){}
+}
+function loadSession(){
+  try{
+    const raw=localStorage.getItem(SESSION_KEY);
+    if(!raw)return null;
+    const s=JSON.parse(raw);
+    // الجلسة تنتهي بعد 30 يوم
+    if(Date.now()-s.ts>30*24*60*60*1000){localStorage.removeItem(SESSION_KEY);return null}
+    return s;
+  }catch(e){return null}
+}
+function clearSession(){localStorage.removeItem(SESSION_KEY)}
+
+// فحص الجلسة المحفوظة عند فتح التطبيق
+(async function checkSavedSession(){
+  const s=loadSession();
+  if(!s)return;
+  // التحقق من أن الحساب لا يزال نشطاً في قاعدة البيانات
+  try{
+    const[emp]=await dbg('employees','id=eq.'+s.id+'&is_active=eq.true&select=id,full_name,role,is_active');
+    if(!emp){clearSession();return}
+    document.getElementById('savedName').textContent=s.full_name+' ('+s.employee_code+')';
+    document.getElementById('savedSessionBox').style.display='block';
+  }catch(e){}
+})();
+
+document.getElementById('resumeBtn').addEventListener('click', async function(){
+  const s=loadSession();if(!s)return;
+  this.textContent='⏳ جاري الدخول...';this.disabled=true;
+  try{
+    // تحديث بيانات الجلسة من قاعدة البيانات
+    const[emp]=await dbg('employees','id=eq.'+s.id+'&is_active=eq.true&select=*');
+    if(!emp){clearSession();toast('انتهت الجلسة — أعد تسجيل الدخول',false);location.reload();return}
+    CU=emp;sd('loginPage','none');document.getElementById('mainApp').style.display='flex';
+    document.getElementById('topBar').style.display='flex';
+    saveSession(emp);initApp();
+  }catch(ex){toast('خطأ: '+ex.message,false)}
+  this.textContent='⚡ دخول سريع';this.disabled=false;
+});
+
+document.getElementById('clearSessionBtn').addEventListener('click',()=>{
+  clearSession();document.getElementById('savedSessionBox').style.display='none';toast('تم مسح الجلسة المحفوظة');
+});
+
+document.getElementById('loginBtn').addEventListener('click', async function(){
+  const code = gv('lCode').trim().toUpperCase();
+  const pwd = gv('lPwd');
+  const err = document.getElementById('lErr');
+  if(!code||!pwd){err.textContent='أدخل الكود وكلمة المرور';err.style.display='block';return}
+  // ✅ الأمان: منع brute force — تأخير بعد كل محاولة فاشلة
+  if(window._loginAttempts>=5){err.textContent='⛔ تم تجاوز الحد المسموح من المحاولات. انتظر دقيقة.';err.style.display='block';return}
+  err.style.display='none';
+  this.textContent='⏳ جاري التحقق...';this.disabled=true;
+  try{
+    const h=await hp(pwd);
+    let e=await dbg('employees','employee_code=eq.'+code+'&password=eq.'+h+'&is_active=eq.true&select=*');
+    if(!e.length){
+      e=await dbg('employees','employee_code=eq.'+code+'&password=eq.'+pwd+'&is_active=eq.true&select=*');
+      if(e.length) await dbu('employees','id=eq.'+e[0].id,{password:h});
+    }
+    if(!e.length){
+      window._loginAttempts=(window._loginAttempts||0)+1;
+      if(window._loginAttempts>=5)setTimeout(()=>{window._loginAttempts=0},60000);
+      err.textContent='كود الموظف أو كلمة المرور غير صحيحة';err.style.display='block';
+    } else {
+      window._loginAttempts=0;
+      CU=e[0];
+      // حفظ الجلسة إذا اختار المستخدم تذكرني
+      if(document.getElementById('rememberMe').checked) saveSession(e[0]);
+      sd('loginPage','none');document.getElementById('mainApp').style.display='flex';
+      document.getElementById('topBar').style.display='flex';
+      initApp();
+    }
+  }catch(ex){err.textContent='خطأ في الاتصال: '+ex.message;err.style.display='block'}
+  this.textContent='دخول ←';this.disabled=false;
+});
+document.getElementById('lPwd').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('loginBtn').click()});
+document.getElementById('lCode').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('lPwd').focus()});
+document.getElementById('logoutBtn').addEventListener('click',()=>{
+  CU=null;
+  if(NOTIF_POLL)clearInterval(NOTIF_POLL);
+  // ✅ الأمان: عند الخروج اليدوي نحذف الجلسة
+  clearSession();
+  document.getElementById('mainApp').style.display='none';
+  document.getElementById('topBar').style.display='none';
+  document.getElementById('savedSessionBox').style.display='none';
+  sd('loginPage','flex');sv('lPwd','');sv('lCode','');
+  toast('تم تسجيل الخروج بأمان ✅');
+});
+
+function initApp(){
+  st('sbName',CU.full_name);st('sbRole',RL[CU.role]||CU.role);
+  st('stName',CU.full_name);st('stRole',RL[CU.role]+' — '+CU.employee_code);
+  sv('stFName',CU.full_name);sv('stCode',CU.employee_code);
+  // ✅ إظهار حقول الإعدادات حسب الدور
+  if(CU.role==='ceo'){
+    sd('stCeoFields','block');sd('stEmpFields','none');
+  } else {
+    sd('stCeoFields','none');sd('stEmpFields','block');
+    st('stNameDisplay',CU.full_name);
+    st('stCodeDisplay',CU.employee_code);
+  }
+  buildNav();buildLTBtns();buildFilters();
+  if(localStorage.getItem(SESSION_KEY)) saveSession(CU);
+  checkNotifs();
+  if(NOTIF_POLL)clearInterval(NOTIF_POLL);
+  NOTIF_POLL=setInterval(checkNotifs,30000);
+  goPage('pgDashboard');
+}
+
+function buildNav(){
+  const m=document.getElementById('navMenu');m.innerHTML='';
+  NAV.filter(n=>n.r.includes(CU.role)).forEach(n=>{
+    const b=document.createElement('button');b.className='nb';b.id='nav_'+n.id;
+    b.innerHTML='<span style="font-size:16px">'+n.i+'</span><span>'+n.l+'</span>';
+    b.addEventListener('click',()=>goPage(n.id));m.appendChild(b);
+  });
+}
+
+function goPage(id){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  const pg=document.getElementById(id);if(pg)pg.classList.add('active');
+  const nb=document.getElementById('nav_'+id);if(nb)nb.classList.add('active');
+  const fn={pgDashboard:loadDash,pgMyReqs:loadMyReqs,pgTeam:loadTeam,pgAllReqs:loadAllReqs,pgEmps:loadEmps,pgBalance:loadBal,pgReports:loadReports,pgNotifs:loadNotifs,pgStats:loadStats,pgCalendar:loadCalendar,pgHistory:loadHistory};
+  if(fn[id])fn[id]();
+}
+
+// ======= الإشعارات =======
+document.getElementById('notifBtn').addEventListener('click',()=>goPage('pgNotifs'));
+document.getElementById('markAllRead').addEventListener('click',async()=>{
+  toast('✅ تم تعليم الكل كمقروء');loadNotifs();
+});
+
+async function checkNotifs(){
+  try{
+    let count=0;
+    if(CU.role==='manager'){
+      const r=await dbg('leave_requests','manager_id=eq.'+CU.id+'&status=eq.pending&select=id');count=r.length;
+    } else if(['hr'].includes(CU.role)){
+      const r=await dbg('leave_requests','status=eq.manager_approved&select=id');count=r.length;
+    } else if(CU.role==='ceo'){
+      const r=await dbg('leave_requests','status=in.(pending,manager_approved,hr_approved)&select=id');count=r.length;
+    } else {
+      const r=await dbg('leave_requests','employee_id=eq.'+CU.id+'&status=in.(approved,rejected)&select=id');count=r.length;
+    }
+    const badge=document.getElementById('notifBadge');
+    if(count>0){badge.textContent=count>9?'9+':count;badge.style.display='inline';}
+    else badge.style.display='none';
+    if(count>LAST_NOTIF_COUNT&&LAST_NOTIF_COUNT>0) toast('🔔 لديك '+count+' إشعار جديد!');
+    LAST_NOTIF_COUNT=count;
+  }catch(e){}
+}
+
+async function loadNotifs(){
+  const el=document.getElementById('notifList');el.innerHTML='<div style="text-align:center;color:#6b7280;padding:30px">⏳</div>';
+  try{
+    let rq=[];
+    if(CU.role==='manager') rq=await dbg('leave_requests','manager_id=eq.'+CU.id+'&select=*,employees!leave_requests_employee_id_fkey(full_name)&order=created_at.desc&limit=20');
+    else if(CU.role==='hr') rq=await dbg('leave_requests','status=in.(manager_approved,pending)&select=*,employees!leave_requests_employee_id_fkey(full_name)&order=created_at.desc&limit=20');
+    else if(CU.role==='ceo') rq=await dbg('leave_requests','status=in.(pending,manager_approved,hr_approved)&select=*,employees!leave_requests_employee_id_fkey(full_name)&order=created_at.desc&limit=20');
+    else rq=await dbg('leave_requests','employee_id=eq.'+CU.id+'&order=created_at.desc&limit=20');
+
+    st('notifCount',rq.length+' إشعار');
+    if(!rq.length){el.innerHTML='<div style="text-align:center;color:#34d399;padding:40px">🎉 لا توجد إشعارات جديدة</div>';return}
+    const empStatus=r=>{if(r.status==='approved')return{l:'مقبول ✅',c:'#34d399'};if(r.status==='rejected')return{l:'مرفوض ❌',c:'#f87171'};return{l:'قيد المراجعة 🔄',c:'#fbbf24'}};
+    el.innerHTML=rq.map(r=>{
+      const s=empStatus(r);
+      const isNew=['pending','manager_approved','hr_approved'].includes(r.status);
+      return`<div class="notif-item ${isNew?'unread':''}">
+        <span style="font-size:20px">${r.leave_type==='departure'?'⏰':'📅'}</span>
+        <div style="flex:1">
+          <div style="font-size:13px;color:white;font-weight:${isNew?'bold':'normal'}">${r.employees?.full_name||'أنت'} — ${LT[r.leave_type]||r.leave_type}</div>
+          <div style="font-size:11px;color:#6b7280;margin-top:3px">${new Date(r.created_at).toLocaleDateString('ar-SA')}</div>
+        </div>
+        <span style="font-size:11px;color:${s.c};font-weight:bold;white-space:nowrap">${s.l}</span>
+      </div>`;
+    }).join('');
+  }catch(ex){el.innerHTML='<div style="color:#f87171;padding:20px">خطأ: '+ex.message+'</div>'}
+}
+
+// ======= الإحصائيات المتقدمة =======
+async function loadStats(){
+  try{
+    const[rq,em]=await Promise.all([
+      dbg('leave_requests','select=*,employees!leave_requests_employee_id_fkey(full_name,department)&order=created_at.desc'),
+      dbg('employees','is_active=eq.true&select=id,full_name,department,annual_leave_balance,sick_leave_balance')
+    ]);
+    // بطاقات إحصائية
+    const approved=rq.filter(r=>r.status==='approved');
+    const pending=rq.filter(r=>['pending','manager_approved','hr_approved'].includes(r.status));
+    const totalDays=approved.reduce((s,r)=>s+(r.duration_days||0),0);
+    document.getElementById('statsCards').innerHTML=[
+      {t:'إجمالي الطلبات',v:rq.length,c:'#fbbf24',i:'📋'},
+      {t:'مقبولة',v:approved.length,c:'#34d399',i:'✅'},
+      {t:'معلقة',v:pending.length,c:'#fbbf24',i:'⏳'},
+      {t:'مرفوضة',v:rq.filter(r=>r.status==='rejected').length,c:'#f87171',i:'❌'},
+      {t:'أيام إجازة استُهلكت',v:totalDays,c:'#60a5fa',i:'📅'},
+      {t:'موظفون نشطون',v:em.length,c:'#c084fc',i:'👥'},
+    ].map(s=>`<div class="stat-card"><div style="font-size:24px">${s.i}</div><div style="font-size:28px;font-weight:bold;color:${s.c};margin:6px 0">${s.v}</div><div style="font-size:12px;color:#6b7280">${s.t}</div></div>`).join('');
+
+    // توزيع أنواع الإجازات
+    const typeCount={};Object.keys(LT).forEach(k=>{typeCount[k]=rq.filter(r=>r.leave_type===k).length});
+    const maxT=Math.max(...Object.values(typeCount))||1;
+    document.getElementById('statsTypes').innerHTML=Object.entries(typeCount).map(([k,v])=>`
+      <div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span style="color:#d1d5db">${LT[k]}</span><span style="color:#fbbf24;font-weight:bold">${v}</span></div>
+        <div style="background:#1f2937;border-radius:4px;height:8px"><div style="background:#fbbf24;height:8px;border-radius:4px;width:${Math.round(v/maxT*100)}%"></div></div>
+      </div>`).join('');
+
+    // إجازات حسب القسم
+    const deptCount={};rq.forEach(r=>{const d=r.employees?.department||'غير محدد';deptCount[d]=(deptCount[d]||0)+1});
+    const maxD=Math.max(...Object.values(deptCount))||1;
+    document.getElementById('statsDepts').innerHTML=Object.entries(deptCount).sort((a,b)=>b[1]-a[1]).map(([d,v])=>`
+      <div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span style="color:#d1d5db">${d}</span><span style="color:#60a5fa;font-weight:bold">${v}</span></div>
+        <div style="background:#1f2937;border-radius:4px;height:8px"><div style="background:#60a5fa;height:8px;border-radius:4px;width:${Math.round(v/maxD*100)}%"></div></div>
+      </div>`).join('');
+
+    // رصيد منخفض
+    const low=em.filter(e=>(e.annual_leave_balance||0)<3);
+    document.getElementById('statsLowBal').innerHTML=low.length?low.map(e=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1f2937">
+        <span style="color:white;font-size:13px">${e.full_name}</span>
+        <span style="color:#f87171;font-weight:bold;font-size:13px">${e.annual_leave_balance||0} يوم متبقي</span>
+      </div>`).join(''):'<div style="color:#34d399;text-align:center;padding:20px">✅ جميع الموظفين لديهم رصيد كافٍ</div>';
+  }catch(ex){toast('خطأ في الإحصائيات: '+ex.message,false)}
+}
+
+// ======= التقويم =======
+async function loadCalendar(){
+  const year=CAL_DATE.getFullYear();const month=CAL_DATE.getMonth();
+  const months=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+  st('calTitle',months[month]+' '+year);
+  try{
+    const startD=new Date(year,month,1).toISOString().split('T')[0];
+    const endD=new Date(year,month+1,0).toISOString().split('T')[0];
+    const rq=await dbg('leave_requests','status=eq.approved&start_date=lte.'+endD+'&end_date=gte.'+startD+'&select=*,employees!leave_requests_employee_id_fkey(full_name)');
+    const today=new Date();
+    const firstDay=new Date(year,month,1).getDay();
+    const daysInMonth=new Date(year,month+1,0).getDate();
+    let html='';
+    for(let i=0;i<firstDay;i++) html+='<div class="cal-day" style="opacity:0.2"></div>';
+    for(let d=1;d<=daysInMonth;d++){
+      const dateStr=year+'-'+String(month+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+      const isToday=today.getDate()===d&&today.getMonth()===month&&today.getFullYear()===year;
+      const dayLeaves=rq.filter(r=>r.start_date<=dateStr&&r.end_date>=dateStr);
+      html+=`<div class="cal-day${isToday?' today':''}">
+        <div style="color:${isToday?'#fbbf24':'#6b7280'};font-size:12px;font-weight:${isToday?'bold':'normal'};margin-bottom:2px">${d}</div>
+        ${dayLeaves.slice(0,2).map(r=>`<div class="cal-event ${r.leave_type}" title="${r.employees?.full_name}">${(r.employees?.full_name||'').split(' ')[0]}</div>`).join('')}
+        ${dayLeaves.length>2?`<div style="font-size:10px;color:#6b7280;margin-top:2px">+${dayLeaves.length-2} أكثر</div>`:''}
+      </div>`;
+    }
+    document.getElementById('calGrid').innerHTML=html;
+  }catch(ex){toast('خطأ في التقويم: '+ex.message,false)}
+}
+document.getElementById('calPrev').addEventListener('click',()=>{CAL_DATE=new Date(CAL_DATE.getFullYear(),CAL_DATE.getMonth()-1,1);loadCalendar()});
+document.getElementById('calNext').addEventListener('click',()=>{CAL_DATE=new Date(CAL_DATE.getFullYear(),CAL_DATE.getMonth()+1,1);loadCalendar()});
+
+// ======= سجل الموظف =======
+async function loadHistory(){
+  try{
+    const em=await dbg('employees','is_active=eq.true&select=id,full_name,employee_code&order=full_name');
+    const sel=document.getElementById('histEmpSel');
+    sel.innerHTML='<option value="">— اختر موظفاً —</option>'+em.map(e=>`<option value="${e.id}">${e.full_name} (${e.employee_code})</option>`).join('');
+    sel.onchange=()=>loadEmpHistory(sel.value);
+  }catch(ex){toast('خطأ: '+ex.message,false)}
+}
+async function loadEmpHistory(id){
+  if(!id){document.getElementById('histContent').innerHTML='';return}
+  const el=document.getElementById('histContent');el.innerHTML='<div style="text-align:center;color:#6b7280;padding:20px">⏳</div>';
+  try{
+    const[emp,rq]=await Promise.all([
+      dbg('employees','id=eq.'+id+'&select=*'),
+      dbg('leave_requests','employee_id=eq.'+id+'&order=created_at.desc')
+    ]);
+    if(!emp.length)return;const e=emp[0];
+    const approved=rq.filter(r=>r.status==='approved');
+    const totalDays=approved.reduce((s,r)=>s+(r.duration_days||0),0);
+    el.innerHTML=`
+      <div class="card" style="margin-bottom:16px">
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+          <div style="width:50px;height:50px;border-radius:50%;background:rgba(251,191,36,0.1);border:2px solid rgba(251,191,36,0.3);display:flex;align-items:center;justify-content:center;font-size:20px">👤</div>
+          <div><div style="color:white;font-weight:bold;font-size:15px">${e.full_name}</div><div style="color:#6b7280;font-size:12px">${e.job_title||''} — ${e.department||''}</div><div style="color:#fbbf24;font-size:11px;font-family:monospace">${e.employee_code}</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin-top:16px">
+          <div class="bc"><div style="font-size:20px;font-weight:bold;color:#fbbf24">${rq.length}</div><div style="font-size:11px;color:#6b7280">إجمالي الطلبات</div></div>
+          <div class="bc"><div style="font-size:20px;font-weight:bold;color:#34d399">${approved.length}</div><div style="font-size:11px;color:#6b7280">مقبولة</div></div>
+          <div class="bc"><div style="font-size:20px;font-weight:bold;color:#60a5fa">${totalDays}</div><div style="font-size:11px;color:#6b7280">أيام مستهلكة</div></div>
+          <div class="bc"><div style="font-size:20px;font-weight:bold;color:#fbbf24">${e.annual_leave_balance||0}</div><div style="font-size:11px;color:#6b7280">رصيد سنوي</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3 style="color:#fbbf24;font-size:13px;margin-bottom:14px">📋 جميع الطلبات</h3>
+        ${rq.length?rq.map(r=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #1f2937;flex-wrap:wrap;gap:8px">
+          <div>
+            <div style="color:white;font-size:13px;font-weight:500">${LT[r.leave_type]||r.leave_type}</div>
+            <div style="color:#6b7280;font-size:11px;margin-top:2px">${r.leave_type==='departure'?'🕐 '+(r.start_time||'')+' — '+(r.end_time||''):'📅 '+(r.start_date||'')+' → '+(r.end_date||'')+' ('+(r.duration_days||0)+' يوم)'}</div>
+            ${r.reason?`<div style="color:#9ca3af;font-size:11px;margin-top:2px">💬 ${r.reason}</div>`:''}
+          </div>
+          <div style="text-align:left">
+            <span class="badge ${(ST[r.status]||{c:'by'}).c}">${(ST[r.status]||{l:r.status}).l}</span>
+            <div style="color:#6b7280;font-size:10px;margin-top:4px">${new Date(r.created_at).toLocaleDateString('ar-SA')}</div>
+          </div>
+        </div>`).join(''):'<div style="text-align:center;color:#6b7280;padding:20px">لا توجد طلبات</div>'}
+      </div>`;
+  }catch(ex){el.innerHTML='<div style="color:#f87171;padding:20px">خطأ: '+ex.message+'</div>'}
+}
+
+async function loadDash(){
+  st('dashWelcome','مرحباً، '+CU.full_name+' 👋 — '+RL[CU.role]);
+  try{
+    let rq=(['ceo','hr'].includes(CU.role))?await dbg('leave_requests','select=status,employee_id'):await dbg('leave_requests','employee_id=eq.'+CU.id+'&select=status');
+    let ss=[{t:'معلق',v:rq.filter(r=>r.status==='pending').length,c:'#fbbf24'},{t:'مقبول',v:rq.filter(r=>r.status==='approved').length,c:'#34d399'},{t:'مرفوض',v:rq.filter(r=>r.status==='rejected').length,c:'#f87171'},{t:'الإجمالي',v:rq.length,c:'#60a5fa'}];
+    if(CU.role==='ceo'){const[em,pn]=await Promise.all([dbg('employees','is_active=eq.true&select=id'),dbg('leave_requests','status=in.(pending,manager_approved,hr_approved)&select=id')]);ss.push({t:'موظفون',v:em.length,c:'#c084fc'},{t:'بانتظار قراري',v:pn.length,c:'#fbbf24'})}
+    document.getElementById('dashStats').innerHTML=ss.map(s=>'<div class="sc"><div style="font-size:28px;font-weight:bold;color:'+s.c+'">'+s.v+'</div><div style="font-size:12px;color:#6b7280;margin-top:4px">'+s.t+'</div></div>').join('');
+    const em=await dbg('employees','id=eq.'+CU.id+'&select=annual_leave_balance,sick_leave_balance,maternity_leave_balance,unpaid_leave_balance,departure_balance_minutes');
+    if(em.length){const e=em[0];sd('dashBalance','block');
+      // تنبيه رصيد منخفض
+      const lowBal=[];
+      if((e.annual_leave_balance||0)<3) lowBal.push('السنوية: '+(e.annual_leave_balance||0)+' يوم');
+      if((e.sick_leave_balance||0)<2) lowBal.push('المرضية: '+(e.sick_leave_balance||0)+' يوم');
+      if(lowBal.length){
+        const warn=document.createElement('div');
+        warn.style.cssText='background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:12px;margin-bottom:14px;color:#f87171;font-size:13px;';
+        warn.innerHTML='⚠️ <strong>تنبيه:</strong> رصيدك منخفض — '+lowBal.join(' | ');
+        document.getElementById('dashBalance').insertAdjacentElement('afterbegin',warn);
+      }
+      document.getElementById('balGrid').innerHTML=[['annual_leave_balance','سنوية','#fbbf24','📅'],['sick_leave_balance','مرضية','#60a5fa','🏥'],['maternity_leave_balance','أمومة','#f472b6','👶'],['unpaid_leave_balance','بدون راتب','#fb923c','💸'],['departure_balance_minutes','استئذان(د)','#c084fc','⏰']].map(([k,l,c,ic])=>'<div class="bc"><div style="font-size:18px">'+ic+'</div><div style="font-size:22px;font-weight:bold;color:'+c+'">'+(e[k]||0)+'</div><div style="font-size:11px;color:#6b7280;margin-top:4px">'+l+'</div></div>').join('')}
+    const rc=await dbg('leave_requests','employee_id=eq.'+CU.id+'&order=created_at.desc&limit=4');
+    if(rc.length){sd('dashRecent','block');document.getElementById('recentList').innerHTML=rc.map(r=>{
+      const s=r.status==='approved'?{l:'مقبول ✅',c:'bg'}:r.status==='rejected'?{l:'مرفوض ❌',c:'br'}:{l:'قيد المراجعة 🔄',c:'by'};
+      return'<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1f2937"><span style="color:#d1d5db;font-size:13px">'+(LT[r.leave_type]||r.leave_type)+'</span><span class="badge '+s.c+'">'+s.l+'</span></div>';
+    }).join('')}
+  }catch(ex){document.getElementById('dashStats').innerHTML='<div style="color:#f87171;padding:10px;grid-column:1/-1">خطأ: '+ex.message+'</div>'}
+}
+
+function buildLTBtns(){
+  const d=document.getElementById('leaveTypeBtns');d.innerHTML='';
+  Object.entries(LT).forEach(([k,v])=>{
+    const b=document.createElement('button');b.className='ltb'+(k===SLT?' sel':'');b.textContent=v;
+    b.addEventListener('click',()=>{SLT=k;document.querySelectorAll('.ltb').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');
+      sd('dateSection',k==='departure'?'none':'block');sd('timeSection',k==='departure'?'block':'none');calcDur()});
+    d.appendChild(b);
+  });
+  ['reqStart','reqEnd','reqFrom','reqTo'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('input',calcDur)});
+}
+
+function calcDur(){
+  const d=document.getElementById('durInfo');
+  if(SLT==='departure'){const f=gv('reqFrom'),t=gv('reqTo');if(f&&t){const[h1,m1]=f.split(':').map(Number),[h2,m2]=t.split(':').map(Number);const mn=(h2*60+m2)-(h1*60+m1);if(mn>0){d.textContent='المدة: '+mn+' دقيقة ('+Math.floor(mn/60)+' ساعة '+mn%60+' دقيقة)';sd('durInfo','block');return}}sd('durInfo','none');return}
+  const s=gv('reqStart'),e=gv('reqEnd');if(s&&e){const dy=(new Date(e)-new Date(s))/86400000+1;if(dy>0){d.textContent='المدة: '+dy+' يوم';sd('durInfo','block');return}}sd('durInfo','none');
+}
+
+document.getElementById('submitReqBtn').addEventListener('click', async function(){
+  try{
+    const id=SLT==='departure';
+    const st2=id?gv('reqDepDate'):gv('reqStart');
+    const en=id?null:gv('reqEnd');
+    const sf=id?gv('reqFrom'):null;
+    const et=id?gv('reqTo'):null;
+    if(!id&&(!st2||!en)){toast('أدخل تاريخ البداية والانتهاء',false);return}
+    if(id&&(!sf||!et)){toast('أدخل وقت البداية والانتهاء',false);return}
+    let dd=null,dm=null;
+    if(!id){dd=(new Date(en)-new Date(st2))/86400000+1;if(dd<=0){toast('تاريخ الانتهاء يجب أن يكون بعد البداية',false);return}}
+    else{const[h1,m1]=sf.split(':').map(Number),[h2,m2]=et.split(':').map(Number);dm=(h2*60+m2)-(h1*60+m1);if(dm<=0){toast('وقت الانتهاء يجب أن يكون بعد البداية',false);return}}
+    // جلب manager_id محدّث من قاعدة البيانات
+    const empData = await dbg('employees','id=eq.'+CU.id+'&select=manager_id');
+    const mgr_id = empData.length ? empData[0].manager_id : null;
+    this.textContent='⏳...';this.disabled=true;
+    await dbp('leave_requests',{employee_id:CU.id,leave_type:SLT,start_date:st2||null,end_date:en,start_time:sf,end_time:et,duration_days:dd,duration_minutes:dm,reason:gv('reqReason'),status:'pending',manager_id:mgr_id});
+    toast('✅ تم إرسال الطلب بنجاح!');sv('reqReason','');
+  }catch(ex){toast('خطأ: '+ex.message,false)}
+  this.textContent='📤 إرسال الطلب';this.disabled=false;
+});
+
+function buildFilters(){
+  const fd=document.getElementById('myReqFilters');fd.innerHTML='';
+  [['all','الكل'],['pending','معلق'],['approved','مقبول'],['rejected','مرفوض']].forEach(([k,v])=>{
+    const b=document.createElement('button');b.id='myf_'+k;b.textContent=v;
+    b.style.cssText='padding:6px 14px;border-radius:8px;border:none;font-size:12px;cursor:pointer;font-family:Tahoma,Arial,sans-serif;margin-left:4px';
+    b.addEventListener('click',()=>{MRF=k;loadMyReqs()});fd.appendChild(b);
+  });
+  const fa=document.getElementById('allReqFilters');fa.innerHTML='';
+  [['all','الكل'],['pending','معلق'],['manager_approved','موافقة المدير'],['hr_approved','موافقة HR'],['approved','مقبول'],['rejected','مرفوض']].forEach(([k,v])=>{
+    const b=document.createElement('button');b.id='allf_'+k;b.textContent=v;
+    b.style.cssText='padding:6px 14px;border-radius:8px;border:none;font-size:12px;cursor:pointer;font-family:Tahoma,Arial,sans-serif;margin-left:4px';
+    b.addEventListener('click',()=>{ARF=k;loadAllReqs()});fa.appendChild(b);
+  });
+}
+
+function stylF(p,a){document.querySelectorAll('[id^="'+p+'"]').forEach(b=>{const k=b.id.replace(p,'');b.style.background=k===a?'#fbbf24':'#1f2937';b.style.color=k===a?'#111827':'#9ca3af'})}
+
+async function loadMyReqs(){
+  stylF('myf_',MRF);const el=document.getElementById('myReqList');el.innerHTML='<div style="text-align:center;color:#6b7280;padding:30px">⏳</div>';
+  try{
+    let q='employee_id=eq.'+CU.id+'&order=created_at.desc';if(MRF!=='all')q+='&status=eq.'+MRF;
+    const rq=await dbg('leave_requests',q);
+    if(!rq.length){el.innerHTML='<div style="text-align:center;color:#6b7280;padding:40px;background:#111827;border-radius:12px">لا توجد طلبات</div>';return}
+    // الموظف يرى فقط الحالة النهائية بدون تفاصيل من وافق أو رفض
+    const empStatus = r => {
+      if(r.status==='approved') return {l:'مقبول ✅',c:'bg'};
+      if(r.status==='rejected') return {l:'مرفوض ❌',c:'br'};
+      return {l:'قيد المراجعة 🔄',c:'by'};
+    };
+    el.innerHTML=rq.map(r=>'<div class="rc"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="color:#fbbf24;font-weight:bold">'+(LT[r.leave_type]||r.leave_type)+'</span><span class="badge '+empStatus(r).c+'">'+empStatus(r).l+'</span></div><div style="color:#9ca3af;font-size:12px">'+(r.leave_type==='departure'?'🕐 '+(r.start_date||'')+' '+(r.start_time||'')+' — '+(r.end_time||'')+' ('+(r.duration_minutes||0)+' دقيقة)':'📅 '+r.start_date+' → '+r.end_date+' ('+(r.duration_days||0)+' يوم)')+'</div>'+(r.reason?'<div style="margin-top:8px;background:#1f2937;border-radius:6px;padding:8px;font-size:12px;color:#9ca3af">💬 '+r.reason+'</div>':'')+'</div>').join('');
+  }catch(ex){el.innerHTML='<div style="color:#f87171;padding:20px">خطأ: '+ex.message+'</div>'}
+}
+
+async function loadTeam(){
+  const el=document.getElementById('teamList');el.innerHTML='<div style="text-align:center;color:#6b7280;padding:30px">⏳</div>';
+  try{
+    const rq=await dbg('leave_requests','manager_id=eq.'+CU.id+'&status=eq.pending&select=*,employees!leave_requests_employee_id_fkey(full_name,employee_code,department)&order=created_at.desc');
+    if(!rq.length){el.innerHTML='<div style="text-align:center;color:#34d399;padding:40px;background:#111827;border-radius:12px">🎉 لا توجد طلبات معلقة</div>';return}
+    el.innerHTML=rq.map(r=>'<div class="rc" style="border-color:rgba(251,191,36,0.2)"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px"><div><span style="color:white;font-weight:bold">'+(r.employees?.full_name||'-')+'</span> <span style="color:#6b7280;font-size:12px">('+( r.employees?.employee_code||'')+')</span></div><span style="color:#fbbf24;font-size:13px">'+(LT[r.leave_type])+'</span></div><div style="color:#9ca3af;font-size:12px;background:#1f2937;padding:10px;border-radius:8px;margin-bottom:10px">'+(r.leave_type==='departure'?'🕐 '+(r.start_time||'')+' — '+(r.end_time||'')+' ('+(r.duration_minutes||0)+' دقيقة)':'📅 '+r.start_date+' → '+r.end_date+' ('+(r.duration_days||0)+' يوم)')+(r.reason?'<div style="margin-top:4px">💬 '+r.reason+'</div>':'')+'</div><input placeholder="ملاحظة" id="tn_'+r.id+'" style="margin-bottom:8px;font-size:13px" /><div style="display:flex;gap:8px"><button class="btn-green" style="flex:1;padding:8px" onclick="decTeam(\''+r.id+'\',\'approved\')">✅ موافقة مبدئية</button><button class="btn-red" style="flex:1;padding:8px" onclick="decTeam(\''+r.id+'\',\'rejected\')">❌ رفض</button></div></div>').join('');
+  }catch(ex){el.innerHTML='<div style="color:#f87171;padding:20px">خطأ: '+ex.message+'</div>'}
+}
+window.decTeam=async function(id,dec){
+  try{const n=gv('tn_'+id);await dbu('leave_requests','id=eq.'+id,{manager_decision:dec,manager_note:n,manager_decided_at:new Date().toISOString(),manager_id:CU.id,status:dec==='approved'?'manager_approved':'rejected'});toast(dec==='approved'?'✅ تمت الموافقة المبدئية':'تم الرفض');loadTeam();}catch(ex){toast('خطأ: '+ex.message,false)}
+};
+
+async function loadAllReqs(){
+  stylF('allf_',ARF);const isCeo=CU.role==='ceo';
+  st('allReqTitle',isCeo?'⚖️ القرارات النهائية':'📑 جميع الطلبات');
+  const el=document.getElementById('allReqList');el.innerHTML='<div style="text-align:center;color:#6b7280;padding:30px">⏳</div>';
+  try{
+    let q='select=*,employees!leave_requests_employee_id_fkey(full_name,employee_code,department)&order=created_at.desc';if(ARF!=='all')q+='&status=eq.'+ARF;
+    ARD=await dbg('leave_requests',q);
+    if(!ARD.length){el.innerHTML='<div style="text-align:center;color:#6b7280;padding:40px;background:#111827;border-radius:12px">لا توجد طلبات</div>';return}
+    el.innerHTML=ARD.map(r=>{
+      const cd=isCeo?!['approved','rejected'].includes(r.status):['pending','manager_approved'].includes(r.status);
+      return'<div class="rc" style="border-color:'+(cd?'rgba(251,191,36,0.25)':'#1f2937')+'"><div style="display:flex;align-items:start;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px"><div><span style="color:white;font-weight:bold">'+(r.employees?.full_name||'-')+'</span> <span style="color:#6b7280;font-size:12px">('+( r.employees?.employee_code||'')+')</span>'+(r.employees?.department?'<span style="margin-right:6px;font-size:11px;background:#1f2937;color:#6b7280;padding:2px 8px;border-radius:6px">'+r.employees.department+'</span>':'')+'</div><span class="badge '+(ST[r.status]||{c:'by'}).c+'">'+(ST[r.status]||{l:r.status}).l+'</span></div><div style="color:#fbbf24;font-size:12px;margin-bottom:6px">'+(LT[r.leave_type]||r.leave_type)+'</div><div style="color:#9ca3af;font-size:12px;background:#0f172a;padding:10px;border-radius:8px;margin-bottom:8px">'+(r.leave_type==='departure'?'🕐 '+(r.start_time||'')+' — '+(r.end_time||'')+' ('+(r.duration_minutes||0)+' دقيقة)':'📅 '+r.start_date+' → '+r.end_date+' ('+(r.duration_days||0)+' يوم)')+(r.reason?'<div style="margin-top:4px">💬 '+r.reason+'</div>':'')+'</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:'+(cd?'10px':'0')+'">'+(r.manager_decision?'<span style="font-size:11px;padding:3px 8px;border-radius:6px;background:'+(r.manager_decision==='approved'?'rgba(52,211,153,0.1)':'rgba(248,113,113,0.1)')+';color:'+(r.manager_decision==='approved'?'#34d399':'#f87171')+'">المدير: '+(r.manager_decision==='approved'?'✅':'❌')+(r.manager_note?' — '+r.manager_note:'')+'</span>':'')+(r.ceo_decision?'<span style="font-size:11px;padding:3px 8px;border-radius:6px;font-weight:bold;background:'+(r.ceo_decision==='approved'?'rgba(52,211,153,0.1)':'rgba(248,113,113,0.1)')+';color:'+(r.ceo_decision==='approved'?'#34d399':'#f87171')+'">م.عام: '+(r.ceo_decision==='approved'?'قبل ✅':'رفض ❌')+(r.ceo_note?' — '+r.ceo_note:'')+'</span>':'')+'</div>'+(cd?'<div style="border-top:1px solid #1f2937;padding-top:10px"><input placeholder="أضف ملاحظة..." id="an_'+r.id+'" style="margin-bottom:8px;font-size:13px" /><div style="display:flex;gap:8px"><button class="btn-green" style="flex:1;padding:8px" onclick="decAll(\''+r.id+'\',\'approved\')">'+(isCeo?'✅ قبول نهائي':'✅ موافقة وترحيل')+'</button><button class="btn-red" style="flex:1;padding:8px" onclick="decAll(\''+r.id+'\',\'rejected\')">'+(isCeo?'❌ رفض نهائي':'❌ رفض')+'</button></div></div>':'')+'</div>';
+    }).join('');
+  }catch(ex){el.innerHTML='<div style="color:#f87171;padding:20px">خطأ: '+ex.message+'</div>'}
+}
+window.decAll=async function(id,dec){
+  try{
+    const isCeo=CU.role==='ceo';const n=gv('an_'+id);const rq=ARD.find(r=>r.id===id);
+    const up=isCeo?{ceo_decision:dec,ceo_id:CU.id,ceo_note:n,ceo_decided_at:new Date().toISOString(),status:dec==='approved'?'approved':'rejected'}:{hr_decision:dec,hr_id:CU.id,hr_note:n,hr_decided_at:new Date().toISOString(),status:dec==='approved'?'hr_approved':'rejected'};
+    await dbu('leave_requests','id=eq.'+id,up);
+    if(isCeo&&dec==='approved'&&rq){
+      const bf={annual:'annual_leave_balance',sick:'sick_leave_balance',maternity:'maternity_leave_balance',unpaid:'unpaid_leave_balance'}[rq.leave_type];
+      if(bf&&rq.duration_days>0){const[e]=await dbg('employees','id=eq.'+rq.employee_id+'&select='+bf);if(e&&e[bf]>=rq.duration_days)await dbu('employees','id=eq.'+rq.employee_id,{[bf]:e[bf]-rq.duration_days})}
+      if(rq.leave_type==='departure'&&rq.duration_minutes>0){
+        const[e]=await dbg('employees','id=eq.'+rq.employee_id+'&select=departure_balance_minutes,annual_leave_balance');
+        if(e){
+          const newMins=(e.departure_balance_minutes||0)-rq.duration_minutes;
+          const upd={departure_balance_minutes:Math.max(0,newMins)};
+          // كل 480 دقيقة (8 ساعات) = يوم من السنوية
+          const daysDeduct=Math.floor(rq.duration_minutes/480);
+          if(daysDeduct>0) upd.annual_leave_balance=Math.max(0,(e.annual_leave_balance||0)-daysDeduct);
+          await dbu('employees','id=eq.'+rq.employee_id,upd);
+        }
+      }
+    }
+    toast(dec==='approved'?(isCeo?'✅ تم القبول النهائي':'✅ تم الترحيل للمدير العام'):'❌ تم الرفض');loadAllReqs();
+  }catch(ex){toast('خطأ: '+ex.message,false)}
+};
+
+async function loadEmps(){
+  try{
+    AE=await dbg('employees','order=full_name&select=*');
+    st('empCount',AE.filter(e=>e.is_active).length+' موظف نشط');
+    document.getElementById('empBody').innerHTML=AE.map(e=>'<tr><td style="color:#fbbf24;font-family:monospace">'+e.employee_code+'</td><td style="color:white;font-weight:500">'+e.full_name+'</td><td>'+(e.department||'-')+'</td><td>'+(RL[e.role]||e.role)+'</td><td><span style="font-size:11px;font-weight:bold;padding:3px 8px;border-radius:20px;'+(e.is_active?'color:#34d399;background:rgba(52,211,153,0.1)':'color:#f87171;background:rgba(248,113,113,0.1)')+'">'+(e.is_active?'نشط':'معطل')+'</span></td><td>'+(e.role!=='ceo'?'<div style="display:flex;gap:6px"><button style="font-size:11px;background:#1e3a5f;color:#60a5fa;padding:4px 10px;border-radius:6px;border:none;cursor:pointer" onclick="openEmpM(\''+e.id+'\')">✏️</button><button style="font-size:11px;background:#065f46;color:#34d399;padding:4px 10px;border-radius:6px;border:none;cursor:pointer" title="إعادة ضبط كلمة المرور" onclick="resetPwd(\''+e.id+'\',\''+e.full_name+'\',\''+e.employee_code+'\')">🔑</button><button style="font-size:11px;'+(e.is_active?'background:#7f1d1d;color:#fca5a5':'background:#065f46;color:#6ee7b7')+';padding:4px 10px;border-radius:6px;border:none;cursor:pointer" onclick="togEmp(\''+e.id+'\','+e.is_active+')">'+(e.is_active?'🚫':'✅')+'</button></div>':'-')+'</td></tr>').join('');
+  }catch(ex){toast('خطأ: '+ex.message,false)}
+}
+
+document.getElementById('addEmpBtn').addEventListener('click',()=>openEmpM(null));
+window.openEmpM=function(id){
+  EE=id?AE.find(e=>e.id===id):null;
+  st('empModalTitle',EE?'✏️ تعديل بيانات موظف':'➕ إضافة موظف جديد');
+  if(EE){sv('mCode',EE.employee_code);sv('mName',EE.full_name);sv('mDept',EE.department||'');sv('mTitle',EE.job_title||'');sv('mRole',EE.role);sv('mHire',EE.hire_date||'');sv('mPwd','');sv('mAnn',EE.annual_leave_balance||0);sv('mSick',EE.sick_leave_balance||0);sv('mMat',EE.maternity_leave_balance||0);sv('mUnp',EE.unpaid_leave_balance||0);sv('mDep',EE.departure_balance_minutes||0);}
+  else{['mCode','mName','mDept','mTitle','mPwd','mHire'].forEach(x=>sv(x,''));['mAnn','mSick','mMat','mUnp','mDep'].forEach(x=>sv(x,0));sv('mRole','employee');}
+  const ms=document.getElementById('mMgr');ms.innerHTML='<option value="">— بدون —</option>'+AE.filter(e=>['manager','hr','ceo'].includes(e.role)&&e.is_active&&(!EE||e.id!==EE.id)).map(e=>'<option value="'+e.id+'">'+e.full_name+'</option>').join('');
+  if(EE)ms.value=EE.manager_id||'';
+  document.getElementById('empModal').style.display='flex';
+};
+window.togEmp=async function(id,active){
+  if(!confirm(active?'هل تريد تعطيل هذا الموظف؟':'هل تريد تفعيله مجدداً؟'))return;
+  try{await dbu('employees','id=eq.'+id,{is_active:!active});toast(active?'تم التعطيل':'تم التفعيل');loadEmps();}catch(ex){toast('خطأ',false)}
+};
+
+// إعادة ضبط كلمة المرور السريعة
+window.resetPwd=function(id, name, code){
+  const box=document.createElement('div');
+  box.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:100;display:flex;align-items:center;justify-content:center;padding:1rem';
+  const defPwd=code.toLowerCase()+'@athar';
+  box.innerHTML=`<div style="background:#111827;border:2px solid #fbbf24;border-radius:16px;padding:28px;max-width:360px;width:100%">
+    <h3 style="color:#fbbf24;margin-bottom:16px;font-size:15px;text-align:center">🔑 إعادة ضبط كلمة مرور</h3>
+    <div style="background:#0f172a;border-radius:10px;padding:14px;margin-bottom:16px;text-align:right">
+      <div style="color:#6b7280;font-size:11px">الموظف</div>
+      <div style="color:white;font-weight:bold;font-size:14px;margin-top:2px">${name} (${code})</div>
+    </div>
+    <div style="margin-bottom:14px">
+      <label style="display:block;font-size:12px;color:#9ca3af;margin-bottom:6px">كلمة المرور الجديدة</label>
+      <input id="resetPwdInput" type="text" value="${defPwd}" style="background:#1f2937;border:1px solid #374151;border-radius:8px;padding:10px 14px;color:#f9fafb;font-size:14px;font-family:monospace;width:100%;outline:none" />
+    </div>
+    <div style="background:rgba(52,211,153,0.05);border:1px solid rgba(52,211,153,0.2);border-radius:8px;padding:10px;margin-bottom:16px;font-size:11px;color:#34d399">
+      💡 الكلمة الافتراضية: <strong>${defPwd}</strong>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button onclick="confirmResetPwd('${id}','${name}','${code}')" style="background:#fbbf24;color:#111827;font-weight:bold;padding:11px;border-radius:8px;border:none;cursor:pointer;font-family:Tahoma,Arial,sans-serif;font-size:13px">✅ تأكيد الضبط</button>
+      <button onclick="this.closest('div[style*=fixed]').remove()" style="background:#374151;color:#d1d5db;padding:11px;border-radius:8px;border:none;cursor:pointer;font-family:Tahoma,Arial,sans-serif;font-size:13px">إلغاء</button>
+    </div>
+  </div>`;
+  document.body.appendChild(box);
+  setTimeout(()=>document.getElementById('resetPwdInput')?.focus(),100);
+};
+
+window.confirmResetPwd=async function(id, name, code){
+  const newPwd=document.getElementById('resetPwdInput')?.value?.trim();
+  if(!newPwd||newPwd.length<4){toast('كلمة المرور قصيرة جداً — 4 أحرف على الأقل',false);return}
+  try{
+    const hashed=await hp(newPwd);
+    await dbu('employees','id=eq.'+id,{password:hashed});
+    // إغلاق نافذة الضبط
+    document.querySelector('div[style*="fixed"][style*="inset:0"]')?.remove();
+    // نافذة تأكيد بالبيانات الجديدة
+    const rb=document.createElement('div');
+    rb.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:100;display:flex;align-items:center;justify-content:center;padding:1rem';
+    rb.innerHTML=`<div style="background:#111827;border:2px solid #34d399;border-radius:16px;padding:28px;max-width:340px;width:100%;text-align:center">
+      <div style="font-size:2rem;margin-bottom:8px">✅</div>
+      <h3 style="color:#34d399;margin-bottom:16px;font-size:15px">تم إعادة الضبط بنجاح!</h3>
+      <div style="background:#0f172a;border-radius:12px;padding:16px;margin-bottom:16px;text-align:right">
+        <div style="margin-bottom:10px"><div style="color:#6b7280;font-size:11px">الموظف</div><div style="color:white;font-weight:bold">${name}</div></div>
+        <div style="margin-bottom:10px"><div style="color:#6b7280;font-size:11px">كود الدخول</div><div style="color:#fbbf24;font-weight:bold;font-size:18px;font-family:monospace">${code}</div></div>
+        <div><div style="color:#6b7280;font-size:11px">كلمة المرور الجديدة</div><div style="color:#34d399;font-weight:bold;font-size:18px;font-family:monospace">${newPwd}</div></div>
+      </div>
+      <p style="color:#f87171;font-size:11px;margin-bottom:14px">⚠️ سلّم هذه البيانات للموظف فوراً</p>
+      <button onclick="this.closest('div[style*=fixed]').remove()" style="background:#34d399;color:#111827;font-weight:bold;padding:12px;border-radius:10px;border:none;cursor:pointer;font-size:14px;font-family:Tahoma,Arial,sans-serif;width:100%">✅ حفظت — إغلاق</button>
+    </div>`;
+    document.body.appendChild(rb);
+    toast('✅ تم إعادة ضبط كلمة المرور');
+  }catch(ex){toast('خطأ: '+ex.message,false)}
+};
+document.getElementById('cancelEmpBtn').addEventListener('click',()=>{document.getElementById('empModal').style.display='none';EE=null});
+document.getElementById('empModal').addEventListener('click',function(e){if(e.target===this){this.style.display='none';EE=null}});
+document.getElementById('saveEmpBtn').addEventListener('click', async function(){
+  try{
+    const code=gv('mCode').trim().toUpperCase();const name=gv('mName').trim();
+    if(!code||!name){toast('الاسم والكود مطلوبان',false);return}
+    const data={employee_code:code,full_name:name,department:gv('mDept'),job_title:gv('mTitle'),role:gv('mRole'),hire_date:gv('mHire')||null,manager_id:gv('mMgr')||null,annual_leave_balance:+gv('mAnn'),sick_leave_balance:+gv('mSick'),maternity_leave_balance:+gv('mMat'),unpaid_leave_balance:+gv('mUnp'),departure_balance_minutes:+gv('mDep')};
+    const pwd=gv('mPwd');
+    if(EE){
+      if(pwd){data.password=await hp(pwd);}
+      await dbu('employees','id=eq.'+EE.id,data);
+      // إذا تم تغيير كلمة المرور — أظهر نافذة تأكيد
+      if(pwd){
+        document.getElementById('empModal').style.display='none';EE=null;loadEmps();
+        const rb=document.createElement('div');
+        rb.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:100;display:flex;align-items:center;justify-content:center;padding:1rem';
+        rb.innerHTML=`<div style="background:#111827;border:2px solid #34d399;border-radius:16px;padding:28px;max-width:360px;width:100%;text-align:center">
+          <div style="font-size:2rem;margin-bottom:8px">🔑</div>
+          <h3 style="color:#34d399;margin-bottom:6px;font-size:15px">تم إعادة ضبط بيانات الدخول!</h3>
+          <div style="background:#0f172a;border-radius:12px;padding:16px;margin:16px 0;text-align:right;border:1px solid #1f2937">
+            <div style="margin-bottom:10px"><div style="color:#6b7280;font-size:11px;margin-bottom:2px">اسم الموظف</div><div style="color:white;font-weight:bold">${name}</div></div>
+            <div style="margin-bottom:10px"><div style="color:#6b7280;font-size:11px;margin-bottom:2px">كود الدخول (اليوزر)</div><div style="color:#fbbf24;font-weight:bold;font-size:18px;font-family:monospace">${code}</div></div>
+            <div><div style="color:#6b7280;font-size:11px;margin-bottom:2px">كلمة المرور الجديدة</div><div style="color:#34d399;font-weight:bold;font-size:18px;font-family:monospace">${pwd}</div></div>
+          </div>
+          <p style="color:#f87171;font-size:11px;margin-bottom:16px">⚠️ سلّم هذه البيانات للموظف مباشرة</p>
+          <button onclick="this.closest('div[style*=fixed]').remove()" style="background:#34d399;color:#111827;font-weight:bold;padding:12px 28px;border-radius:10px;border:none;cursor:pointer;font-size:14px;font-family:Tahoma,Arial,sans-serif;width:100%">✅ حفظت البيانات — إغلاق</button>
+        </div>`;
+        document.body.appendChild(rb);
+        return;
+      }
+      toast('✅ تم تحديث بيانات الموظف');
+    }
+    else{
+      data.is_active=true;
+      let autoPwd='';
+      if(pwd){data.password=await hp(pwd);autoPwd=pwd;}
+      else{autoPwd=code.toLowerCase()+'@athar';data.password=await hp(autoPwd);}
+      await dbp('employees',data);
+      document.getElementById('empModal').style.display='none';EE=null;loadEmps();
+      // نافذة بيانات الدخول
+      const lb=document.createElement('div');
+      lb.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:100;display:flex;align-items:center;justify-content:center;padding:1rem';
+      lb.innerHTML=`<div style="background:#111827;border:2px solid #fbbf24;border-radius:16px;padding:28px;max-width:380px;width:100%;text-align:center">
+        <div style="font-size:2.5rem;margin-bottom:8px">🎉</div>
+        <h3 style="color:#fbbf24;margin-bottom:6px;font-size:16px">تم إضافة الموظف بنجاح!</h3>
+        <p style="color:#6b7280;font-size:12px;margin-bottom:18px">بيانات الدخول الخاصة بالموظف الجديد</p>
+        <div style="background:#0f172a;border-radius:12px;padding:18px;margin-bottom:16px;text-align:right;border:1px solid #1f2937">
+          <div style="margin-bottom:12px"><div style="color:#6b7280;font-size:11px;margin-bottom:3px">الاسم الكامل</div><div style="color:white;font-weight:bold;font-size:15px">${name}</div></div>
+          <div style="margin-bottom:12px"><div style="color:#6b7280;font-size:11px;margin-bottom:3px">كود الموظف (اليوزر)</div><div style="color:#fbbf24;font-weight:bold;font-size:20px;font-family:monospace;letter-spacing:2px">${code}</div></div>
+          <div><div style="color:#6b7280;font-size:11px;margin-bottom:3px">كلمة المرور</div><div style="color:#34d399;font-weight:bold;font-size:20px;font-family:monospace;letter-spacing:2px">${autoPwd}</div></div>
+        </div>
+        <div style="background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);border-radius:8px;padding:10px;margin-bottom:16px">
+          <p style="color:#f87171;font-size:11px">⚠️ احفظ هذه البيانات قبل الإغلاق<br>يمكن تغيير كلمة المرور لاحقاً من إدارة الموظفين</p>
+        </div>
+        <button onclick="this.closest('div[style*=fixed]').remove()" style="background:#fbbf24;color:#111827;font-weight:bold;padding:12px 28px;border-radius:10px;border:none;cursor:pointer;font-size:14px;font-family:Tahoma,Arial,sans-serif;width:100%">✅ حفظت البيانات — إغلاق</button>
+      </div>`;
+      document.body.appendChild(lb);
+      return;
+    }
+    document.getElementById('empModal').style.display='none';EE=null;loadEmps();
+  }catch(ex){toast('خطأ: '+ex.message,false)}
+});
+
+async function loadBal(){
+  const el=document.getElementById('balList');el.innerHTML='<div style="text-align:center;color:#6b7280;padding:30px">⏳</div>';
+  try{
+    const em=await dbg('employees','is_active=eq.true&select=id,employee_code,full_name,department,annual_leave_balance,sick_leave_balance,maternity_leave_balance,unpaid_leave_balance,departure_balance_minutes&order=full_name');
+    el.innerHTML=em.map(e=>'<div class="card" style="margin-bottom:12px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px"><div><span style="color:white;font-weight:bold">'+e.full_name+'</span> <span style="color:#6b7280;font-size:12px">('+e.employee_code+')</span></div><button class="btn-gold" style="font-size:12px;padding:6px 14px" onclick="editBal(\''+e.id+'\')">✏️ تعديل</button></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px" id="bv_'+e.id+'">'+'<div class="bc"><div style="font-size:20px;font-weight:bold;color:#fbbf24">'+(e.annual_leave_balance||0)+'</div><div style="font-size:11px;color:#6b7280;margin-top:4px">سنوية</div></div><div class="bc"><div style="font-size:20px;font-weight:bold;color:#60a5fa">'+(e.sick_leave_balance||0)+'</div><div style="font-size:11px;color:#6b7280;margin-top:4px">مرضية</div></div><div class="bc"><div style="font-size:20px;font-weight:bold;color:#f472b6">'+(e.maternity_leave_balance||0)+'</div><div style="font-size:11px;color:#6b7280;margin-top:4px">أمومة</div></div><div class="bc"><div style="font-size:20px;font-weight:bold;color:#fb923c">'+(e.unpaid_leave_balance||0)+'</div><div style="font-size:11px;color:#6b7280;margin-top:4px">بدون راتب</div></div><div class="bc"><div style="font-size:20px;font-weight:bold;color:#c084fc">'+(e.departure_balance_minutes||0)+'</div><div style="font-size:11px;color:#6b7280;margin-top:4px">استئذان(د)</div></div>'+'</div></div>').join('');
+  }catch(ex){el.innerHTML='<div style="color:#f87171;padding:20px">خطأ: '+ex.message+'</div>'}
+}
+window.editBal=async function(id){
+  const em=await dbg('employees','id=eq.'+id+'&select=*');if(!em.length)return;const e=em[0];
+  document.getElementById('bv_'+id).innerHTML='<div style="grid-column:1/-1"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:10px">'+'<div><label style="font-size:11px;color:#fbbf24;display:block;margin-bottom:4px">سنوية</label><input type="number" min="0" id="eb_ann_'+id+'" value="'+(e.annual_leave_balance||0)+'" style="padding:8px" /></div><div><label style="font-size:11px;color:#60a5fa;display:block;margin-bottom:4px">مرضية</label><input type="number" min="0" id="eb_sick_'+id+'" value="'+(e.sick_leave_balance||0)+'" style="padding:8px" /></div><div><label style="font-size:11px;color:#f472b6;display:block;margin-bottom:4px">أمومة</label><input type="number" min="0" id="eb_mat_'+id+'" value="'+(e.maternity_leave_balance||0)+'" style="padding:8px" /></div><div><label style="font-size:11px;color:#fb923c;display:block;margin-bottom:4px">بدون راتب</label><input type="number" min="0" id="eb_unp_'+id+'" value="'+(e.unpaid_leave_balance||0)+'" style="padding:8px" /></div><div><label style="font-size:11px;color:#c084fc;display:block;margin-bottom:4px">استئذان(د)</label><input type="number" min="0" id="eb_dep_'+id+'" value="'+(e.departure_balance_minutes||0)+'" style="padding:8px" /></div>'+'</div><div style="display:flex;gap:8px"><button class="btn-green" style="flex:1;padding:8px" onclick="saveBal(\''+id+'\')">💾 حفظ</button><button class="btn-gray" style="padding:8px 16px" onclick="loadBal()">إلغاء</button></div></div>';
+};
+window.saveBal=async function(id){
+  try{
+    const d={annual_leave_balance:+gv('eb_ann_'+id),sick_leave_balance:+gv('eb_sick_'+id),maternity_leave_balance:+gv('eb_mat_'+id),unpaid_leave_balance:+gv('eb_unp_'+id),departure_balance_minutes:+gv('eb_dep_'+id)};
+    await dbu('employees','id=eq.'+id,d);
+    await dbp('balance_history',{employee_id:id,leave_type:'manual',change_amount:0,change_reason:'تعديل يدوي من المدير العام',changed_by:CU.id});
+    toast('✅ تم تحديث الرصيد');loadBal();
+  }catch(ex){toast('خطأ: '+ex.message,false)}
+};
+
+async function loadReports(){
+  document.getElementById('rptStats').innerHTML='<div style="text-align:center;color:#6b7280;padding:20px">⏳ جاري تحميل البيانات...</div>';
+  try{
+    const[rq,em]=await Promise.all([dbg('leave_requests','select=*,employees!leave_requests_employee_id_fkey(full_name,employee_code,department)&order=created_at.desc'),dbg('employees','is_active=eq.true&select=id,full_name,employee_code,department,annual_leave_balance,sick_leave_balance,maternity_leave_balance,departure_balance_minutes&order=full_name')]);
+    window._RQ=rq;window._RE=em;
+    st('rptEmpCount',em.length);
+    const es=document.getElementById('rptEmp');es.innerHTML='<option value="all">جميع الموظفين</option>'+em.map(e=>'<option value="'+e.id+'">'+e.full_name+' ('+e.employee_code+')</option>').join('');
+    const ts=document.getElementById('rptType');ts.innerHTML='<option value="all">كل الأنواع</option>'+Object.entries(LT).map(([k,v])=>'<option value="'+k+'">'+v+'</option>').join('');
+    const ss=document.getElementById('rptStatus');ss.innerHTML='<option value="all">كل الحالات</option>'+Object.entries(ST).map(([k,v])=>'<option value="'+k+'">'+v.l+'</option>').join('');
+    [es,ts,ss].forEach(s=>{s.onchange=updRC});updRC();
+    document.getElementById('rptStats').innerHTML='<h3 style="color:#fbbf24;font-size:14px;margin-bottom:14px">📈 ملخص إحصائي</h3><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px">'+Object.entries(ST).map(([k,v])=>'<div class="sc"><div style="font-size:22px;font-weight:bold;color:#fbbf24">'+rq.filter(r=>r.status===k).length+'</div><div style="font-size:12px;color:#6b7280;margin-top:4px">'+v.l+'</div></div>').join('')+'</div>';
+  }catch(ex){document.getElementById('rptStats').innerHTML='<div style="color:#f87171;padding:20px">❌ خطأ: '+ex.message+'</div>';toast('خطأ في التقارير: '+ex.message,false)}
+}
+function updRC(){
+  if(!window._RQ)return;
+  const e=gv('rptEmp'),t=gv('rptType'),s=gv('rptStatus');
+  const f=window._RQ.filter(r=>(e==='all'||r.employee_id===e)&&(t==='all'||r.leave_type===t)&&(s==='all'||r.status===s));
+  st('rptCount',f.length+' طلب سيتم تصديره');
+}
+function dlXLS(rows, name){
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  // تنسيق العرض
+  ws['!cols'] = rows[0].map(()=>({wch:20}));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'تقرير');
+  XLSX.writeFile(wb, name+'_'+new Date().toLocaleDateString('ar-SA').replace(/\//g,'-')+'.xlsx');
+  toast('✅ تم تصدير Excel!');
+}
+
+function dlPDF(rows, name, title){
+  const date = new Date().toLocaleDateString('ar-SA');
+  let html = `<html><head><meta charset="UTF-8">
+  <style>
+    body{font-family:Tahoma,Arial,sans-serif;direction:rtl;padding:20px;color:#111}
+    h2{color:#b45309;text-align:center;margin-bottom:4px}
+    p{text-align:center;color:#6b7280;font-size:12px;margin-bottom:16px}
+    table{width:100%;border-collapse:collapse;font-size:12px}
+    th{background:#b45309;color:white;padding:8px;text-align:right;border:1px solid #d97706}
+    td{padding:7px 8px;border:1px solid #e5e7eb;text-align:right}
+    tr:nth-child(even) td{background:#fef9f0}
+    .footer{text-align:center;margin-top:20px;font-size:11px;color:#9ca3af}
+  </style></head><body>
+  <h2>⭐ Goldenmark — ${title}</h2>
+  <p>تاريخ التصدير: ${date}</p>
+  <table><thead><tr>${rows[0].map(h=>'<th>'+h+'</th>').join('')}</tr></thead><tbody>
+  ${rows.slice(1).map(r=>'<tr>'+r.map(c=>'<td>'+c+'</td>').join('')+'</tr>').join('')}
+  </tbody></table>
+  <div class="footer">Goldenmark — نظام الإجازات الشامل 2026</div>
+  </body></html>`;
+  const w = window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
+  setTimeout(()=>{w.print();},500);
+  toast('✅ جاري فتح PDF للطباعة!');
+}
+
+function getReqRows(){
+  const e=gv('rptEmp'),t=gv('rptType'),s=gv('rptStatus');
+  const f=window._RQ.filter(r=>(e==='all'||r.employee_id===e)&&(t==='all'||r.leave_type===t)&&(s==='all'||r.status===s));
+  return [['الموظف','الكود','القسم','نوع الإجازة','من','إلى','المدة(أيام)','استئذان(دقائق)','السبب','الحالة','قرار المدير','قرار HR','القرار النهائي','تاريخ الطلب'],
+    ...f.map(r=>[r.employees?.full_name||'',r.employees?.employee_code||'',r.employees?.department||'',LT[r.leave_type]||r.leave_type,r.start_date||'',r.end_date||'',r.duration_days||'',r.duration_minutes||'',r.reason||'',(ST[r.status]||{l:r.status}).l,r.manager_decision||'',r.hr_decision||'',r.ceo_decision||'',new Date(r.created_at).toLocaleDateString('ar-SA')])];
+}
+function getBalRows(){
+  return [['الموظف','الكود','القسم','سنوية','مرضية','أمومة','بدون راتب','استئذان(د)'],
+    ...window._RE.map(e=>[e.full_name,e.employee_code,e.department||'',e.annual_leave_balance||0,e.sick_leave_balance||0,e.maternity_leave_balance||0,e.unpaid_leave_balance||0,e.departure_balance_minutes||0])];
+}
+
+document.getElementById('expReqXls').addEventListener('click',()=>{if(!window._RQ)return;dlXLS(getReqRows(),'تقرير_الإجازات');});
+document.getElementById('expReqPdf').addEventListener('click',()=>{if(!window._RQ)return;dlPDF(getReqRows(),'تقرير_الإجازات','تقرير طلبات الإجازات');});
+document.getElementById('expBalXls').addEventListener('click',()=>{if(!window._RE)return;dlXLS(getBalRows(),'تقرير_الأرصدة');});
+document.getElementById('expBalPdf').addEventListener('click',()=>{if(!window._RE)return;dlPDF(getBalRows(),'تقرير_الأرصدة','تقرير أرصدة الإجازات');});
+document.getElementById('expBackup').addEventListener('click', async function(){
+  this.textContent='⏳ جاري التصدير...';this.disabled=true;
+  try{
+    const[emps,reqs]=await Promise.all([
+      dbg('employees','select=*&order=employee_code'),
+      dbg('leave_requests','select=*,employees!leave_requests_employee_id_fkey(full_name,employee_code)&order=created_at.desc')
+    ]);
+    const wb=XLSX.utils.book_new();
+    // ورقة الموظفين
+    const empRows=[['الكود','الاسم','القسم','المسمى الوظيفي','الدور','تاريخ التعيين','نشط','سنوية','مرضية','أمومة','بدون راتب','استئذان(د)','تاريخ الإضافة'],
+      ...emps.map(e=>[e.employee_code,e.full_name,e.department||'',e.job_title||'',e.role,e.hire_date||'',e.is_active?'نعم':'لا',e.annual_leave_balance||0,e.sick_leave_balance||0,e.maternity_leave_balance||0,e.unpaid_leave_balance||0,e.departure_balance_minutes||0,new Date(e.created_at).toLocaleDateString('ar-SA')])];
+    const wsE=XLSX.utils.aoa_to_sheet(empRows);wsE['!cols']=empRows[0].map(()=>({wch:18}));
+    XLSX.utils.book_append_sheet(wb,wsE,'الموظفون');
+    // ورقة الطلبات
+    const reqRows=[['الموظف','الكود','نوع الإجازة','من','إلى','مدة(أيام)','استئذان(د)','السبب','الحالة','قرار المدير','قرار HR','قرار المدير العام','تاريخ الطلب'],
+      ...reqs.map(r=>[r.employees?.full_name||'',r.employees?.employee_code||'',LT[r.leave_type]||r.leave_type,r.start_date||'',r.end_date||'',r.duration_days||'',r.duration_minutes||'',r.reason||'',(ST[r.status]||{l:r.status}).l,r.manager_decision||'',r.hr_decision||'',r.ceo_decision||'',new Date(r.created_at).toLocaleDateString('ar-SA')])];
+    const wsR=XLSX.utils.aoa_to_sheet(reqRows);wsR['!cols']=reqRows[0].map(()=>({wch:18}));
+    XLSX.utils.book_append_sheet(wb,wsR,'طلبات الإجازات');
+    const date=new Date().toLocaleDateString('ar-SA').replace(/\//g,'-');
+    XLSX.writeFile(wb,'نسخة_احتياطية_الاثر_الذهبي_'+date+'.xlsx');
+    toast('✅ تم تصدير النسخة الاحتياطية الكاملة!');
+  }catch(ex){toast('خطأ: '+ex.message,false)}
+  this.textContent='🛡️ تصدير نسخة احتياطية كاملة';this.disabled=false;
+});
+
+document.getElementById('saveStBtn').addEventListener('click', async function(){
+  const op=gv('stOldPwd');
+  if(!op){toast('أدخل كلمة مرورك الحالية أولاً',false);return}
+  try{
+    // ✅ التحقق من كلمة المرور الحالية (مشفرة أو نص)
+    const h=await hp(op);
+    let c=await dbg('employees','id=eq.'+CU.id+'&password=eq.'+h);
+    if(!c.length) c=await dbg('employees','id=eq.'+CU.id+'&password=eq.'+op);
+    if(!c.length){toast('❌ كلمة المرور الحالية غير صحيحة',false);return}
+
+    const up={};
+
+    // ✅ تعديل الاسم والكود — CEO فقط
+    if(CU.role==='ceo'){
+      const newName=gv('stFName').trim();
+      const newCode=gv('stCode').trim().toUpperCase();
+      if(!newName||!newCode){toast('الاسم والكود مطلوبان',false);return}
+      up.full_name=newName;
+      up.employee_code=newCode;
+    }
+
+    // ✅ تغيير كلمة المرور — متاح للجميع
+    const np=gv('stNewPwd').trim();
+    if(np){
+      if(np!==gv('stConPwd')){toast('❌ كلمة المرور الجديدة غير متطابقة',false);return}
+      if(np.length<6){toast('❌ كلمة المرور يجب أن تكون 6 أحرف على الأقل',false);return}
+      if(np===op){toast('❌ كلمة المرور الجديدة مطابقة للقديمة!',false);return}
+      up.password=await hp(np);
+    }
+
+    if(!Object.keys(up).length){toast('لم تقم بأي تغيير',false);return}
+
+    await dbu('employees','id=eq.'+CU.id,up);
+    CU={...CU,...up};
+    // تحديث الواجهة
+    st('sbName',CU.full_name);
+    st('stName',CU.full_name);
+    st('stRole',RL[CU.role]+' — '+CU.employee_code);
+    if(CU.role!=='ceo'){st('stNameDisplay',CU.full_name);st('stCodeDisplay',CU.employee_code);}
+    // تحديث الجلسة
+    if(localStorage.getItem(SESSION_KEY)) saveSession(CU);
+    // تنظيف حقول كلمة المرور
+    sv('stOldPwd','');sv('stNewPwd','');sv('stConPwd','');
+    toast('✅ تم حفظ التغييرات بنجاح');
+  }catch(ex){toast('خطأ: '+ex.message,false)}
+});
+
+// ======= وضع ليلي / نهاري =======
+let isDark=true;
+const themeBtn=document.getElementById('themeBtn');
+const savedTheme=localStorage.getItem('theme');
+if(savedTheme==='light'){isDark=false;document.documentElement.classList.add('light');themeBtn.textContent='☀️ نهاري';}
+themeBtn.addEventListener('click',()=>{
+  isDark=!isDark;
+  document.documentElement.classList.toggle('light',!isDark);
+  themeBtn.textContent=isDark?'🌙 ليلي':'☀️ نهاري';
+  localStorage.setItem('theme',isDark?'dark':'light');
+});
+
+// ======= دعم اللغة الإنجليزية =======
+let isAr=true;
+const TRANS={
+  'لوحة التحكم':'Dashboard','طلب إجازة جديد':'New Request','طلباتي':'My Requests',
+  'طلبات الفريق':'Team Requests','جميع الطلبات':'All Requests','تقويم الإجازات':'Leave Calendar',
+  'الإحصائيات':'Statistics','سجل الموظفين':'Employee History','إدارة الموظفين':'Employees',
+  'إدارة الأرصدة':'Balances','التقارير':'Reports','إعدادات حسابي':'Settings',
+  'الإشعارات':'Notifications','تسجيل الخروج':'Logout','مدير عام':'CEO',
+  'موظف':'Employee','مدير قسم':'Manager','موارد بشرية':'HR',
+  'إجازة سنوية':'Annual Leave','إجازة مرضية':'Sick Leave','إجازة أمومة':'Maternity',
+  'بدون راتب':'Unpaid','استئذان':'Permission','معلق':'Pending',
+  'مقبول':'Approved','مرفوض':'Rejected','موافقة المدير':'Manager Approved',
+  'موافقة HR':'HR Approved','دخول ←':'Login →','كود الموظف':'Employee Code',
+  'كلمة المرور':'Password','نظام إدارة الإجازات':'Leave Management System',
+};
+const langBtn=document.getElementById('langBtn');
+langBtn.addEventListener('click',()=>{
+  isAr=!isAr;
+  const html=document.getElementById('htmlRoot');
+  if(isAr){
+    html.setAttribute('lang','ar');html.setAttribute('dir','rtl');html.classList.remove('en-mode');
+    langBtn.textContent='🌍 EN';
+  } else {
+    html.setAttribute('lang','en');html.setAttribute('dir','ltr');html.classList.add('en-mode');
+    langBtn.textContent='🌍 AR';
+    toast('Switched to English mode',true);
+  }
+});
+
+// ======= PWA — تثبيت التطبيق =======
+let deferredPrompt = null;
+const INSTALL_KEY = 'goldenmark_install_dismissed';
+
+function showInstallBanner() {
+  // لا تُظهر البانر إذا رفض المستخدم مسبقاً خلال 7 أيام
+  const dismissed = localStorage.getItem(INSTALL_KEY);
+  if (dismissed && Date.now() - parseInt(dismissed) < 7 * 24 * 60 * 60 * 1000) return;
+  document.getElementById('installBanner').style.display = 'block';
+}
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  // إظهار البانر تلقائياً بعد ثانيتين
+  setTimeout(showInstallBanner, 2000);
+  // إظهار زر التثبيت في الشريط العلوي أيضاً
+  document.getElementById('installBtn').style.display = 'block';
+});
+
+// زر "تثبيت" في البانر
+document.getElementById('installNowBtn').addEventListener('click', async () => {
+  document.getElementById('installBanner').style.display = 'none';
+  document.getElementById('installBtn').style.display = 'none';
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  if (outcome === 'accepted') toast('✅ تم تثبيت التطبيق بنجاح!');
+  deferredPrompt = null;
+  localStorage.removeItem(INSTALL_KEY);
+});
+
+// زر "لاحقاً" في البانر
+document.getElementById('installLaterBtn').addEventListener('click', () => {
+  document.getElementById('installBanner').style.display = 'none';
+  localStorage.setItem(INSTALL_KEY, Date.now().toString());
+});
+
+// زر التثبيت في الشريط العلوي
+document.getElementById('installBtn').addEventListener('click', async () => {
+  document.getElementById('installBanner').style.display = 'none';
+  document.getElementById('installBtn').style.display = 'none';
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  if (outcome === 'accepted') toast('✅ تم تثبيت التطبيق بنجاح!');
+  deferredPrompt = null;
+});
+
+// إخفاء البانر بعد التثبيت
+window.addEventListener('appinstalled', () => {
+  document.getElementById('installBanner').style.display = 'none';
+  document.getElementById('installBtn').style.display = 'none';
+  deferredPrompt = null;
+  toast('🎉 تم تثبيت التطبيق على جهازك!');
+});
+
+// ======= Service Worker =======
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => console.log('SW registered:', reg.scope))
+      .catch(err => console.log('SW error:', err));
+  });
+}
+
+// ======= واتساب عند القرار =======
+function sendWhatsApp(phone, msg){
+  if(!phone)return;
+  const clean=phone.replace(/\D/g,'');
+  const url='https://wa.me/'+clean+'?text='+encodeURIComponent(msg);
+  window.open(url,'_blank');
+}
+
+// إضافة زر واتساب بعد القرار
+const origDecAll=window.decAll;
+window.decAll=async function(id,dec){
+  await origDecAll(id,dec);
+  const rq=ARD.find(r=>r.id===id);
+  if(!rq)return;
+  // جلب رقم الموظف
+  try{
+    const[emp]=await dbg('employees','id=eq.'+rq.employee_id+'&select=full_name,phone');
+    if(emp?.phone){
+      const isCeo=CU.role==='ceo';
+      const msg=dec==='approved'
+        ?`✅ مرحباً ${emp.full_name}،\nتم *قبول* طلب إجازتك (${LT[rq.leave_type]||rq.leave_type}) ${rq.start_date?'من '+rq.start_date+' إلى '+rq.end_date:''}\n— نظام الأثر الذهبي`
+        :`❌ مرحباً ${emp.full_name}،\nنأسف، تم *رفض* طلب إجازتك (${LT[rq.leave_type]||rq.leave_type})\n— نظام الأثر الذهبي`;
+      // إظهار خيار إرسال واتساب
+      const wb=document.createElement('div');
+      wb.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#111827;border:1px solid #25d366;border-radius:12px;padding:14px 20px;z-index:999;display:flex;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,0.5)';
+      wb.innerHTML=`<span style="color:#25d366;font-size:20px">💬</span><span style="color:white;font-size:13px">إرسال إشعار واتساب لـ ${emp.full_name}؟</span><button onclick="sendWhatsApp('${emp.phone}','${msg.replace(/'/g,"\\'")}');this.closest('div[style*=fixed]').remove()" style="background:#25d366;color:white;font-weight:bold;padding:8px 14px;border-radius:8px;border:none;cursor:pointer;font-family:Tahoma,Arial,sans-serif;font-size:12px">📱 إرسال</button><button onclick="this.closest('div[style*=fixed]').remove()" style="background:#374151;color:#9ca3af;padding:8px 10px;border-radius:8px;border:none;cursor:pointer;font-size:12px">✕</button>`;
+      document.body.appendChild(wb);
+      setTimeout(()=>{if(wb.parentNode)wb.remove()},8000);
+    }
+  }catch(e){}
+};
+
+// ======= طباعة نموذج طلب الإجازة =======
+window.printLeaveForm=function(req, empName, empCode, dept, jobTitle){
+  const date=new Date().toLocaleDateString('ar-SA');
+  const html=`<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8">
+  <style>
+    body{font-family:Arial,Tahoma,sans-serif;direction:rtl;padding:30px;color:#000;font-size:13px}
+    .header{text-align:center;border-bottom:3px solid #b45309;padding-bottom:16px;margin-bottom:20px}
+    h1{color:#b45309;font-size:20px;margin-bottom:4px}
+    .logo{font-size:32px}
+    table{width:100%;border-collapse:collapse;margin-bottom:20px}
+    td,th{border:1px solid #999;padding:8px 12px;text-align:right}
+    th{background:#f3f4f6;font-weight:bold;color:#374151;width:35%}
+    .sig-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-top:30px}
+    .sig-box{border:1px solid #999;border-radius:8px;padding:16px;text-align:center;min-height:80px}
+    .sig-label{font-size:11px;color:#6b7280;margin-bottom:8px}
+    .sig-line{border-bottom:1px solid #374151;margin-top:40px}
+    .stamp{border:2px solid #b45309;border-radius:50%;width:80px;height:80px;display:inline-flex;align-items:center;justify-content:center;color:#b45309;font-size:11px;font-weight:bold;text-align:center;margin:10px auto;opacity:0.4}
+    @media print{button{display:none}}
+  </style></head><body>
+  <div class="header">
+    <div class="logo">⭐</div>
+    <h1>Goldenmark</h1>
+    <div style="font-size:13px;color:#b45309;font-weight:bold">نظام الإجازات الشامل — شركة الأثر الذهبي</div>
+    <div style="font-size:13px;color:#6b7280;margin-top:2px">نموذج طلب إجازة — Leave Request Form</div>
+  </div>
+  <table>
+    <tr><th>اسم الموظف / Employee Name</th><td>${empName||''}</td></tr>
+    <tr><th>كود الموظف / Employee Code</th><td>${empCode||''}</td></tr>
+    <tr><th>القسم / Department</th><td>${dept||''}</td></tr>
+    <tr><th>المسمى الوظيفي / Job Title</th><td>${jobTitle||''}</td></tr>
+    <tr><th>نوع الإجازة / Leave Type</th><td>${LT[req.leave_type]||req.leave_type}</td></tr>
+    <tr><th>تاريخ البداية / Start Date</th><td>${req.start_date||req.start_time||''}</td></tr>
+    <tr><th>تاريخ الانتهاء / End Date</th><td>${req.end_date||req.end_time||''}</td></tr>
+    <tr><th>عدد الأيام / Duration</th><td>${req.duration_days?req.duration_days+' يوم':req.duration_minutes?req.duration_minutes+' دقيقة':''}</td></tr>
+    <tr><th>السبب / Reason</th><td>${req.reason||'—'}</td></tr>
+    <tr><th>تاريخ الطلب / Request Date</th><td>${new Date(req.created_at).toLocaleDateString('ar-SA')}</td></tr>
+    <tr><th>الحالة / Status</th><td style="color:${req.status==='approved'?'green':req.status==='rejected'?'red':'orange'};font-weight:bold">${(ST[req.status]||{l:req.status}).l}</td></tr>
+  </table>
+  <div class="sig-row">
+    <div class="sig-box"><div class="sig-label">توقيع الموظف / Employee Signature</div><div class="sig-line"></div><div style="font-size:11px;margin-top:6px;color:#6b7280">${empName||''}</div></div>
+    <div class="sig-box"><div class="sig-label">مدير القسم / Department Manager</div><div class="sig-line"></div><div style="font-size:11px;margin-top:6px;color:${req.manager_decision==='approved'?'green':'#6b7280'}">${req.manager_decision==='approved'?'✅ موافق':'⏳ قيد المراجعة'}</div></div>
+    <div class="sig-box"><div class="sig-label">المدير العام / CEO</div><div class="sig-line"></div><div style="font-size:11px;margin-top:6px;color:${req.ceo_decision==='approved'?'green':req.ceo_decision==='rejected'?'red':'#6b7280'}">${req.ceo_decision==='approved'?'✅ مقبول':req.ceo_decision==='rejected'?'❌ مرفوض':'⏳ قيد المراجعة'}</div></div>
+  </div>
+  <div style="text-align:center;margin-top:20px">
+    <div class="stamp">Golden<br>mark<br>2026</div>
+  </div>
+  <div style="text-align:center;color:#9ca3af;font-size:11px;margin-top:16px;border-top:1px solid #e5e7eb;padding-top:10px">
+    طُبع بتاريخ: ${date} — Goldenmark نظام الإجازات الشامل — شركة الأثر الذهبي
+  </div>
+  <button onclick="window.print()" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#b45309;color:white;font-weight:bold;padding:12px 28px;border-radius:10px;border:none;cursor:pointer;font-size:14px">🖨️ طباعة النموذج</button>
+  </body></html>`;
+  const w=window.open('','_blank');w.document.write(html);w.document.close();
+};
+
+// ======= التقرير الشهري التلقائي =======
+document.getElementById('expMonthly').addEventListener('click', async function(){
+  const month=gv('rptMonth');
+  if(!month){toast('اختر الشهر أولاً',false);return}
+  this.textContent='⏳ جاري التوليد...';this.disabled=true;
+  try{
+    const[y,m]=month.split('-');
+    const start=`${y}-${m}-01`;
+    const end=new Date(y,m,0).toISOString().split('T')[0];
+    const[reqs,emps]=await Promise.all([
+      dbg('leave_requests',`created_at=gte.${start}T00:00:00&created_at=lte.${end}T23:59:59&select=*,employees!leave_requests_employee_id_fkey(full_name,employee_code,department)&order=created_at.desc`),
+      dbg('employees','is_active=eq.true&select=id,full_name,employee_code,department,annual_leave_balance,sick_leave_balance')
+    ]);
+    const monthNames=['','يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+    const monthName=monthNames[+m]+' '+y;
+    const approved=reqs.filter(r=>r.status==='approved');
+    const rejected=reqs.filter(r=>r.status==='rejected');
+    const pending=reqs.filter(r=>['pending','manager_approved','hr_approved'].includes(r.status));
+    const totalDays=approved.reduce((s,r)=>s+(r.duration_days||0),0);
+    const html=`<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8">
+    <style>
+      body{font-family:Arial,Tahoma,sans-serif;direction:rtl;padding:30px;color:#000}
+      h1{color:#b45309;text-align:center}.header{text-align:center;margin-bottom:24px;border-bottom:2px solid #b45309;padding-bottom:12px}
+      .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0}
+      .stat{background:#fef9f0;border:1px solid #d97706;border-radius:8px;padding:14px;text-align:center}
+      .stat .num{font-size:28px;font-weight:bold;color:#b45309}
+      .stat .lbl{font-size:12px;color:#6b7280}
+      table{width:100%;border-collapse:collapse;font-size:12px;margin-top:16px}
+      th{background:#b45309;color:white;padding:8px;text-align:right}
+      td{padding:7px 8px;border-bottom:1px solid #e5e7eb}
+      tr:nth-child(even) td{background:#fef9f0}
+      .footer{text-align:center;margin-top:20px;font-size:11px;color:#9ca3af;border-top:1px solid #e5e7eb;padding-top:10px}
+      @media print{button{display:none}}
+    </style></head><body>
+    <div class="header">
+      <div style="font-size:32px">⭐</div>
+      <h1>التقرير الشهري — ${monthName}</h1>
+      <div style="color:#6b7280;font-size:13px">Goldenmark — نظام الإجازات الشامل | شركة الأثر الذهبي | تاريخ الإصدار: ${new Date().toLocaleDateString('ar-SA')}</div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="num">${reqs.length}</div><div class="lbl">إجمالي الطلبات</div></div>
+      <div class="stat"><div class="num" style="color:green">${approved.length}</div><div class="lbl">مقبول</div></div>
+      <div class="stat"><div class="num" style="color:red">${rejected.length}</div><div class="lbl">مرفوض</div></div>
+      <div class="stat"><div class="num" style="color:#b45309">${totalDays}</div><div class="lbl">أيام إجازة</div></div>
+    </div>
+    <table><thead><tr><th>#</th><th>الموظف</th><th>القسم</th><th>النوع</th><th>من</th><th>إلى</th><th>أيام</th><th>الحالة</th></tr></thead><tbody>
+    ${reqs.map((r,i)=>`<tr><td>${i+1}</td><td>${r.employees?.full_name||''}</td><td>${r.employees?.department||''}</td><td>${LT[r.leave_type]||r.leave_type}</td><td>${r.start_date||'—'}</td><td>${r.end_date||'—'}</td><td>${r.duration_days||r.duration_minutes||'—'}</td><td style="color:${r.status==='approved'?'green':r.status==='rejected'?'red':'orange'};font-weight:bold">${(ST[r.status]||{l:r.status}).l}</td></tr>`).join('')}
+    </tbody></table>
+    ${!reqs.length?'<div style="text-align:center;color:#9ca3af;padding:30px">لا توجد طلبات في هذا الشهر</div>':''}
+    <div class="footer">التقرير الشهري لـ ${monthName} | Goldenmark — شركة الأثر الذهبي 2026</div>
+    <button onclick="window.print()" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#b45309;color:white;font-weight:bold;padding:12px 28px;border-radius:10px;border:none;cursor:pointer;font-size:14px">🖨️ طباعة التقرير</button>
+    </body></html>`;
+    const w=window.open('','_blank');w.document.write(html);w.document.close();
+    toast('✅ تم توليد التقرير الشهري!');
+  }catch(ex){toast('خطأ: '+ex.message,false)}
+  this.textContent='📊 توليد التقرير الشهري';this.disabled=false;
+});
+
+window.printReq=function(id){
+  if(!CU)return;
+  dbg('leave_requests','id=eq.'+id+'&select=*').then(([req])=>{
+    if(req) printLeaveForm(req,CU.full_name,CU.employee_code,CU.department,CU.job_title);
+  });
+};
+
+// ضبط شهر التقرير للشهر الحالي
+document.addEventListener('DOMContentLoaded',()=>{
+  const now=new Date();
+  const m=String(now.getMonth()+1).padStart(2,'0');
+  const y=now.getFullYear();
+  const inp=document.getElementById('rptMonth');
+  if(inp) inp.value=`${y}-${m}`;
+});
+</script>
+</body>
+</html>
