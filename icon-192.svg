@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f172a"/>
+      <stop offset="100%" style="stop-color:#1e3a5f"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fbbf24"/>
+      <stop offset="100%" style="stop-color:#f59e0b"/>
+    </linearGradient>
+  </defs>
+  <rect width="192" height="192" rx="36" fill="url(#bg)"/>
+  <rect x="6" y="6" width="180" height="180" rx="30" fill="none" stroke="#fbbf24" stroke-width="2.5" opacity="0.4"/>
+  <polygon points="96,28 110,70 154,70 119,94 131,136 96,112 61,136 73,94 38,70 82,70"
+           fill="url(#gold)" opacity="0.95"/>
+  <rect x="28" y="142" width="136" height="2" rx="1" fill="#fbbf24" opacity="0.6"/>
+  <text x="96" y="162" font-family="Arial,Tahoma,sans-serif" font-size="17" font-weight="bold"
+        fill="#fbbf24" text-anchor="middle">نظام الإجازات</text>
+  <text x="96" y="182" font-family="Arial,Tahoma,sans-serif" font-size="13"
+        fill="#9ca3af" text-anchor="middle">الأثر الذهبي</text>
+</svg>

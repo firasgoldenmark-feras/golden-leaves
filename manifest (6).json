@@ -1,0 +1,29 @@
+{
+  "name": "نظام الإجازات — الأثر الذهبي",
+  "short_name": "الإجازات",
+  "description": "نظام إدارة الإجازات الرسمي — شركة الأثر الذهبي",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#030712",
+  "theme_color": "#fbbf24",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "./icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "categories": ["business", "productivity"]
+}

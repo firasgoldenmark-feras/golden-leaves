@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f172a"/>
+      <stop offset="100%" style="stop-color:#1e3a5f"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fbbf24"/>
+      <stop offset="100%" style="stop-color:#f59e0b"/>
+    </linearGradient>
+  </defs>
+  <!-- خلفية مدورة -->
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+  <!-- إطار ذهبي -->
+  <rect x="16" y="16" width="480" height="480" rx="80" fill="none" stroke="#fbbf24" stroke-width="6" opacity="0.4"/>
+  <!-- نجمة ذهبية كبيرة في المنتصف -->
+  <polygon points="256,80 290,180 396,180 312,238 342,340 256,282 170,340 200,238 116,180 222,180"
+           fill="url(#gold)" opacity="0.95"/>
+  <!-- خط فاصل ذهبي -->
+  <rect x="80" y="355" width="352" height="3" rx="2" fill="#fbbf24" opacity="0.6"/>
+  <!-- نص نظام الإجازات -->
+  <text x="256" y="400" font-family="Arial,Tahoma,sans-serif" font-size="42" font-weight="bold"
+        fill="#fbbf24" text-anchor="middle">نظام الإجازات</text>
+  <!-- نص الأثر الذهبي -->
+  <text x="256" y="458" font-family="Arial,Tahoma,sans-serif" font-size="34"
+        fill="#9ca3af" text-anchor="middle">الأثر الذهبي</text>
+</svg>
